@@ -7,8 +7,15 @@ import icon3 from '@/public/dashboard/icon/icon9.svg';
 import icon4 from '@/public/dashboard/icon/icon5.svg';
 import eye from '@/public/dashboard/icon/eye.svg';
 import mail from '@/public/dashboard/icon/mail.svg';
+import ViewModal from './_components/viewmodal';
+import MailModal from './_components/mailmodal';
 
 export default function Dashboard() {
+  const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
+  const [isMailModalOpen, setIsMailModalOpen] = React.useState(false);
+  const [selectedStudent, setSelectedStudent] = React.useState(null);
+  const [selectedStudents, setSelectedStudents] = React.useState([]);
+
   const tableData = [
     { id: 1, name: "Jenny Wilson", age: "16 Years", email: "abcd@gmail.com", joinDate: "16/02/2025", time: "4:00 pm", status: "Active" },
     { id: 2, name: "Robert Fox", age: "18 Years", email: "robert@gmail.com", joinDate: "15/02/2025", time: "3:30 pm", status: "Inactive" },
@@ -93,6 +100,33 @@ export default function Dashboard() {
         </div>
       </div>
     );
+  };
+
+  const handleViewClick = (student) => {
+    setSelectedStudent(student);
+    setIsViewModalOpen(true);
+  };
+
+  const handleMailClick = (student) => {
+    setSelectedStudent(student);
+    setSelectedStudents([student]);
+    setIsMailModalOpen(true);
+  };
+
+  const handleSendEmailAll = () => {
+    setSelectedStudents(filteredData);
+    setIsMailModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedStudent(null);
+  };
+
+  const handleCloseMailModal = () => {
+    setIsMailModalOpen(false);
+    setSelectedStudent(null);
+    setSelectedStudents([]);
   };
 
   return (
@@ -264,9 +298,23 @@ export default function Dashboard() {
                     <td className="p-4">{renderStatus(item.status)}</td>
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <Image src={eye} alt="View" width={16} height={17} />
+                        <Image 
+                          src={eye} 
+                          alt="View" 
+                          width={16} 
+                          height={17} 
+                          className="cursor-pointer"
+                          onClick={() => handleViewClick(item)}
+                        />
                         <div className="w-[1px] h-5 bg-[#dfe1e6]"></div>
-                        <Image src={mail} alt="mail" width={16} height={17} />
+                        <Image 
+                          src={mail} 
+                          alt="mail" 
+                          width={16} 
+                          height={17} 
+                          className="cursor-pointer"
+                          onClick={() => handleMailClick(item)}
+                        />
                       </div>
                     </td>
                   </tr>
@@ -277,16 +325,30 @@ export default function Dashboard() {
 
           {/* Send Email All button */}
           <div className="self-stretch px-6 justify-end items-center gap-4 inline-flex mt-4">
-            <button className="px-[18px] py-3 bg-[#b60000] rounded-lg flex items-center gap-1.5">
+            <button 
+              className="px-[18px] py-3 bg-[#b60000] rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-[#a00000] transition-colors"
+              onClick={handleSendEmailAll}
+            >
               <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1.66699 5.5L7.42784 8.76414C9.55166 9.9675 10.449 9.9675 12.5728 8.76414L18.3337 5.5" stroke="white" strokeWidth="1.25" strokeLinejoin="round"/>
                 <path d="M1.67916 11.73C1.73363 14.2847 1.76087 15.5619 2.70348 16.5082C3.64608 17.4543 4.95796 17.4872 7.58171 17.5532C9.19877 17.5938 10.7999 17.5938 12.417 17.5532C15.0408 17.4872 16.3526 17.4543 17.2953 16.5082C18.2378 15.5619 18.2651 14.2847 18.3195 11.73C18.3371 10.9086 18.3371 10.0921 18.3195 9.27066C18.2651 6.71604 18.2378 5.43873 17.2953 4.49254C16.3526 3.54635 15.0408 3.51339 12.417 3.44747C10.7999 3.40683 9.19877 3.40683 7.5817 3.44746C4.95796 3.51338 3.64608 3.54633 2.70347 4.49253C1.76087 5.43873 1.73363 6.71603 1.67915 9.27066C1.66163 10.0921 1.66164 10.9086 1.67916 11.73Z" stroke="white" strokeWidth="1.25" strokeLinejoin="round"/>
               </svg>
-              <span className="text-white text-base font-medium  ">Send Email All</span>
+              <span className="text-white text-base font-medium">Send Email All</span>
             </button>
           </div>
         </div>
       </div>
+
+      <ViewModal 
+        isOpen={isViewModalOpen}
+        onClose={handleCloseViewModal}
+        data={selectedStudent}
+      />
+      <MailModal 
+        isOpen={isMailModalOpen}
+        onClose={handleCloseMailModal}
+        selectedStudents={selectedStudents}
+      />
     </>
   )
 }
