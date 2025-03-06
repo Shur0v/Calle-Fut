@@ -4,7 +4,17 @@ import ViewModal from '../_components/viewmodal';
 import MailModal from '../_components/mailmodal';
 import EditModal from '../_components/editmodal';
 import DeleteModal from '../_components/deletemodal';
+import { getAllStudents, updateStudent, deleteStudent } from '../_data/studentData';
 
+// Move initialData outside the component
+const initialData = [
+  { id: 1, name: "Jenny Wilson", age: "16 Years", email: "abcd@gmail.com", joinDate: "16/02/2025", time: "4:00 pm", status: "Active" },
+  { id: 2, name: "Robert Fox", age: "18 Years", email: "robert@gmail.com", joinDate: "15/02/2025", time: "3:30 pm", status: "Inactive" },
+  { id: 3, name: "Wade Warren", age: "17 Years", email: "wade@gmail.com", joinDate: "14/02/2025", time: "2:45 pm", status: "Active" },
+  { id: 4, name: "Esther Howard", age: "19 Years", email: "esther@gmail.com", joinDate: "13/02/2025", time: "1:15 pm", status: "Active" },
+  { id: 5, name: "Leslie Alexander", age: "16 Years", email: "leslie@gmail.com", joinDate: "12/02/2025", time: "11:30 am", status: "Inactive" },
+  { id: 6, name: "Cameron Williamson", age: "11 Years", email: "cameron@gmail.com", joinDate: "11/02/2025", time: "10:00 am", status: "Active" }
+];
 
 export default function Students() {
   const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
@@ -16,27 +26,34 @@ export default function Students() {
   const [showActionMenu, setShowActionMenu] = React.useState(false);
   const [actionMenuPosition, setActionMenuPosition] = React.useState({ top: 0, left: 0 });
 
-
-  const tableData = [
-    { id: 1, name: "Jenny Wilson", age: "16 Years", email: "abcd@gmail.com", joinDate: "16/02/2025", time: "4:00 pm", status: "Active" },
-    { id: 2, name: "Robert Fox", age: "18 Years", email: "robert@gmail.com", joinDate: "15/02/2025", time: "3:30 pm", status: "Inactive" },
-    { id: 3, name: "Wade Warren", age: "17 Years", email: "wade@gmail.com", joinDate: "14/02/2025", time: "2:45 pm", status: "Active" },
-    { id: 4, name: "Esther Howard", age: "19 Years", email: "esther@gmail.com", joinDate: "13/02/2025", time: "1:15 pm", status: "Active" },
-    { id: 5, name: "Leslie Alexander", age: "16 Years", email: "leslie@gmail.com", joinDate: "12/02/2025", time: "11:30 am", status: "Inactive" },
-    { id: 6, name: "Cameron Williamson", age: "11 Years", email: "cameron@gmail.com", joinDate: "11/02/2025", time: "10:00 am", status: "Active" }
-  ];
-
-
+  // Initialize with data from our data file
+  const [tableData, setTableData] = React.useState(getAllStudents());
+  const [filteredData, setFilteredData] = React.useState(getAllStudents());
   const [ageFilter, setAgeFilter] = React.useState('All');
   const [statusFilter, setStatusFilter] = React.useState('All');
-  const [filteredData, setFilteredData] = React.useState(tableData);
 
-  // Memoize tableData to prevent unnecessary re-renders
-  const memoizedTableData = React.useMemo(() => tableData, []);
-
-  // Filter function
+  // Load data from localStorage on component mount
   React.useEffect(() => {
-    let filtered = [...memoizedTableData];
+    const savedData = localStorage.getItem('studentData');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setTableData(parsedData);
+        setFilteredData(parsedData);
+      } catch (e) {
+        console.error('Error parsing saved data:', e);
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever tableData changes
+  React.useEffect(() => {
+    localStorage.setItem('studentData', JSON.stringify(tableData));
+  }, [tableData]);
+
+  // Update filtered data when filters or tableData changes
+  React.useEffect(() => {
+    let filtered = [...tableData];
     
     if (ageFilter !== 'All') {
       filtered = filtered.filter(item => item.age === ageFilter);
@@ -47,11 +64,11 @@ export default function Students() {
     }
     
     setFilteredData(filtered);
-  }, [ageFilter, statusFilter, memoizedTableData]);
+  }, [ageFilter, statusFilter, tableData]);
 
   // Generate age options from tableData
   const generateAgeOptions = React.useCallback(() => {
-    const ages = memoizedTableData.map(item => parseInt(item.age));
+    const ages = tableData.map(item => parseInt(item.age));
     const minAge = Math.min(...ages);
     const maxAge = Math.max(...ages);
     
@@ -60,7 +77,7 @@ export default function Students() {
       ageOptions.push(`${age} Years`);
     }
     return ageOptions;
-  }, [memoizedTableData]);
+  }, [tableData]);
 
   const ageOptions = React.useMemo(() => generateAgeOptions(), [generateAgeOptions]);
   const statusOptions = ['All', 'Active', 'Inactive'];
@@ -79,16 +96,18 @@ export default function Students() {
   const handleActionClick = (e, student) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log('Action clicked, student:', student);
     setSelectedStudent(student);
     const rect = e.currentTarget.getBoundingClientRect();
     setActionMenuPosition({
       top: rect.bottom + 5,
       left: rect.left - 110
     });
-    setShowActionMenu(prev => !prev);
+    setShowActionMenu(true);
   };
 
   const handleViewClick = () => {
+    console.log('View clicked, opening modal with student:', selectedStudent);
     setIsViewModalOpen(true);
     setShowActionMenu(false);
   };
@@ -132,7 +151,7 @@ export default function Students() {
   // Close action menu when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showActionMenu) {
+      if (showActionMenu && !event.target.closest('.action-menu')) {
         setShowActionMenu(false);
       }
     };
@@ -140,6 +159,29 @@ export default function Students() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showActionMenu]);
+
+  // Add this effect to track state changes
+  React.useEffect(() => {
+    console.log('State changed:', {
+      isViewModalOpen,
+      selectedStudent,
+      showActionMenu
+    });
+  }, [isViewModalOpen, selectedStudent, showActionMenu]);
+
+  const handleUpdateStudent = (updatedStudent) => {
+    // Update the main data
+    const updatedData = updateStudent(updatedStudent);
+    // Update the state
+    setTableData(updatedData);
+  };
+
+  const handleDeleteStudent = (studentId) => {
+    // Delete from main data
+    const updatedData = deleteStudent(studentId);
+    // Update the state
+    setTableData(updatedData);
+  };
 
   return (
     <div className="relative">
@@ -246,7 +288,7 @@ export default function Students() {
 
       {showActionMenu && selectedStudent && (
         <div 
-          className="p-2 bg-[#ffefef] rounded fixed flex-col justify-start items-start gap-2 flex shadow-lg z-[1000] min-w-[120px]"
+          className="action-menu p-2 bg-[#ffefef] rounded fixed flex-col justify-start items-start gap-2 flex shadow-lg z-[1000] min-w-[120px]"
           style={{ 
             top: actionMenuPosition.top, 
             left: actionMenuPosition.left 
@@ -297,11 +339,13 @@ export default function Students() {
         isOpen={isEditModalOpen}
         onClose={handleCloseEditModal}
         data={selectedStudent}
+        onUpdate={handleUpdateStudent}
       />
       <DeleteModal 
         isOpen={isDeleteModalOpen}
         onClose={handleCloseDeleteModal}
         data={selectedStudent}
+        onDelete={handleDeleteStudent}
       />
       <MailModal 
         isOpen={isMailModalOpen}
