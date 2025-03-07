@@ -109,19 +109,19 @@ export default function Setting() {
             </div>
           </div>
           <div className="flex flex-col gap-3.5">
-            <div className="text-[#22262e] text-2xl font-semibold font-['Montserrat']">{formValues.name}</div>
+            <div className="text-[#22262e] text-2xl font-semibold  ">{formValues.name}</div>
             <div className="flex gap-4">
               <button 
                 onClick={handleReplacePhoto}
                 className="px-4 py-3 bg-[#b60000] rounded-lg flex items-center gap-1.5 hover:bg-[#a00000] transition-colors"
               >
-                <span className="text-white text-base font-medium font-['Montserrat']">Replace Photo</span>
+                <span className="text-white text-base font-medium  ">Replace Photo</span>
               </button>
               <button 
                 onClick={handleRemovePhoto}
                 className="px-4 py-3 rounded-lg border border-[#db0000]/30 flex items-center gap-1.5 hover:bg-[#fff0f0] transition-colors"
               >
-                <span className="text-[#b60000] text-base font-medium font-['Montserrat']">Remove</span>
+                <span className="text-[#b60000] text-base font-medium  ">Remove</span>
               </button>
             </div>
           </div>
@@ -131,69 +131,69 @@ export default function Setting() {
       {/* Settings Section */}
       <div className="w-full">
         <div className="mb-6">
-          <h1 className="text-[#22262e] text-[32px] font-semibold font-['Montserrat']">Settings</h1>
+          <h1 className="text-[#22262e] text-[32px] font-semibold  ">Settings</h1>
         </div>
 
         <div className="w-full p-6 bg-white rounded-2xl">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-[#22262e] text-2xl font-medium font-['Montserrat']">Account Settings</h2>
+            <h2 className="text-[#22262e] text-2xl font-medium  ">Account Settings</h2>
             <button onClick={handleEdit} className="flex items-center gap-1.5 text-[#b60000] cursor-pointer hover:opacity-80">
               <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M16.9249 5.06993L17.9149 4.07994C18.7351 3.25981 20.0648 3.25981 20.8849 4.07994C21.705 4.90008 21.705 6.22977 20.8849 7.04991L19.8949 8.0399M16.9249 5.06993L10.2656 11.7292C9.75807 12.2368 9.39804 12.8726 9.22397 13.5689L8.5 16.4648L11.3959 15.7408C12.0922 15.5668 12.728 15.2067 13.2356 14.6992L19.8949 8.0399M16.9249 5.06993L19.8949 8.0399" stroke="#B60000" strokeWidth="1.25" strokeLinejoin="round"/>
                 <path d="M19.4999 13.9648C19.4999 17.2523 19.4999 18.896 18.592 20.0024C18.4258 20.2049 18.2401 20.3906 18.0375 20.5568C16.9312 21.4648 15.2874 21.4648 11.9999 21.4648H11.5C7.72876 21.4648 5.84316 21.4648 4.67159 20.2932C3.50003 19.1217 3.5 17.236 3.5 13.4648V12.9648C3.5 9.67736 3.5 8.03363 4.40794 6.92728C4.57417 6.72474 4.7599 6.53901 4.96244 6.37278C6.06879 5.46484 7.71252 5.46484 11 5.46484" stroke="#B60000" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-lg font-normal font-['Montserrat']">Edit</span>
+              <span className="text-lg font-normal  ">Edit</span>
             </button>
           </div>
 
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-3">
-              <label className="text-[#4a4c56] text-base font-normal font-['Montserrat']">Name</label>
+              <label className="text-[#4a4c56] text-base font-normal  ">Name</label>
               {isEditing ? (
                 <input
                   type="text"
                   name="name"
                   value={formValues.name}
                   onChange={handleInputChange}
-                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal font-['Montserrat'] focus:outline-none focus:border-[#b60000] transition-colors"
+                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal   focus:outline-none focus:border-[#b60000] transition-colors"
                 />
               ) : (
                 <div className="p-5 rounded-lg border border-[#e5e1e1]">
-                  <span className="text-[#777980] text-sm font-normal font-['Montserrat']">{formValues.name}</span>
+                  <span className="text-[#777980] text-sm font-normal  ">{formValues.name}</span>
                 </div>
               )}
             </div>
 
             <div className="flex flex-col gap-3">
-              <label className="text-[#4a4c56] text-base font-normal font-['Montserrat']">Email</label>
+              <label className="text-[#4a4c56] text-base font-normal  ">Email</label>
               {isEditing ? (
                 <input
                   type="email"
                   name="email"
                   value={formValues.email}
                   onChange={handleInputChange}
-                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal font-['Montserrat'] focus:outline-none focus:border-[#b60000] transition-colors"
+                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal   focus:outline-none focus:border-[#b60000] transition-colors"
                 />
               ) : (
                 <div className="p-5 rounded-lg border border-[#e5e1e1]">
-                  <span className="text-[#777980] text-sm font-normal font-['Montserrat']">{formValues.email}</span>
+                  <span className="text-[#777980] text-sm font-normal  ">{formValues.email}</span>
                 </div>
               )}
             </div>
 
             <div className="flex flex-col gap-3">
-              <label className="text-[#4a4c56] text-base font-normal font-['Montserrat']">Password</label>
+              <label className="text-[#4a4c56] text-base font-normal  ">Password</label>
               {isEditing ? (
                 <input
                   type="password"
                   name="password"
                   value={formValues.password}
                   onChange={handleInputChange}
-                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal font-['Montserrat'] focus:outline-none focus:border-[#b60000] transition-colors"
+                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal   focus:outline-none focus:border-[#b60000] transition-colors"
                 />
               ) : (
                 <div className="p-5 rounded-lg border border-[#e5e1e1]">
-                  <span className="text-[#777980] text-sm font-normal font-['Montserrat']">{formValues.password}</span>
+                  <span className="text-[#777980] text-sm font-normal  ">{formValues.password}</span>
                 </div>
               )}
             </div>
@@ -204,13 +204,13 @@ export default function Setting() {
           <div className="flex justify-end gap-4 mt-6">
             <button 
               onClick={handleSave}
-              className="w-[100px] h-12 px-[18px] py-3 bg-[#b60000] rounded-lg text-white font-medium font-['Montserrat'] hover:bg-[#a00000] transition-colors"
+              className="w-[100px] h-12 px-[18px] py-3 bg-[#b60000] rounded-lg text-white font-medium   hover:bg-[#a00000] transition-colors"
             >
               Save
             </button>
             <button 
               onClick={handleCancel}
-              className="w-[100px] h-12 px-[18px] py-3 rounded-lg border border-[#db0000]/30 text-[#b60000] font-medium font-['Montserrat'] hover:bg-[#fff0f0] transition-colors"
+              className="w-[100px] h-12 px-[18px] py-3 rounded-lg border border-[#db0000]/30 text-[#b60000] font-medium   hover:bg-[#fff0f0] transition-colors"
             >
               Cancel
             </button>

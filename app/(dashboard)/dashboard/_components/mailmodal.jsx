@@ -36,15 +36,15 @@ export default function MailModal({ isOpen, onClose, selectedStudents }) {
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full">
           <div className="self-stretch h-[464px] flex-col justify-start items-start gap-6 flex">
-            <div className="self-stretch text-[#070707] text-2xl font-medium font-['Montserrat'] leading-normal">Compose Email</div>
+            <div className="self-stretch text-[#070707] text-2xl font-medium   leading-normal">Compose Email</div>
             <div className="self-stretch h-[416px] flex-col justify-start items-start gap-3 flex">
               <div className="self-stretch justify-start items-start gap-4 inline-flex">
                 <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
                   <div className="self-stretch justify-start items-center gap-2 inline-flex">
-                    <div className="text-[#4a4c56] text-base font-normal font-['Montserrat'] leading-none">Recipients:</div>
+                    <div className="text-[#4a4c56] text-base font-normal   leading-none">Recipients:</div>
                   </div>
                   <div className="w-full h-[56px] rounded-lg border border-[#E5E1E1] p-4">
-                    <div className="text-[#777980] text-sm font-normal font-['Montserrat'] leading-[14px]">
+                    <div className="text-[#777980] text-sm font-normal   leading-[14px]">
                       {selectedStudents?.length === 1 
                         ? `${selectedStudents[0].name} (${selectedStudents[0].email})`
                         : `All Students Selected (${selectedStudents?.length || 0} students)`
@@ -57,11 +57,11 @@ export default function MailModal({ isOpen, onClose, selectedStudents }) {
               <div className="self-stretch justify-start items-start gap-4 inline-flex">
                 <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
                   <div className="self-stretch justify-start items-center gap-2 inline-flex">
-                    <div className="text-[#4a4c56] text-base font-normal font-['Montserrat'] leading-none">Template Name</div>
+                    <div className="text-[#4a4c56] text-base font-normal   leading-none">Template Name</div>
                   </div>
                   <select 
                     {...register("templateName", { required: "Template is required" })}
-                    className="w-full h-[56px] rounded-lg border border-[#E5E1E1] p-4 text-[#777980] text-sm font-normal font-['Montserrat']"
+                    className="w-full h-[56px] rounded-lg border border-[#E5E1E1] p-4 text-[#777980] text-sm font-normal  "
                   >
                     <option value="">Select template</option>
                     <option value="template1">Template 1</option>
@@ -75,13 +75,13 @@ export default function MailModal({ isOpen, onClose, selectedStudents }) {
               <div className="self-stretch justify-start items-start gap-4 inline-flex">
                 <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
                   <div className="self-stretch justify-start items-center gap-2 inline-flex">
-                    <div className="text-[#4a4c56] text-base font-normal font-['Montserrat'] leading-none">Subject:</div>
+                    <div className="text-[#4a4c56] text-base font-normal   leading-none">Subject:</div>
                   </div>
                   <input 
                     type="text"
                     placeholder="Enter subject..."
                     {...register("subject", { required: "Subject is required" })}
-                    className="w-full h-[56px] rounded-lg border border-[#E5E1E1] p-4 text-[#777980] text-sm font-normal font-['Montserrat']"
+                    className="w-full h-[56px] rounded-lg border border-[#E5E1E1] p-4 text-[#777980] text-sm font-normal  "
                   />
                   {errors.subject && <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>}
                 </div>
@@ -90,12 +90,12 @@ export default function MailModal({ isOpen, onClose, selectedStudents }) {
               <div className="self-stretch justify-start items-start gap-4 inline-flex">
                 <div className="grow shrink basis-0 flex-col justify-start items-start gap-2 inline-flex">
                   <div className="self-stretch justify-start items-center gap-2 inline-flex">
-                    <div className="text-[#4a4c56] text-base font-normal font-['Montserrat'] leading-none">Body</div>
+                    <div className="text-[#4a4c56] text-base font-normal   leading-none">Body</div>
                   </div>
                   <textarea 
                     placeholder="Compose your email..."
                     {...register("body", { required: "Email body is required" })}
-                    className="w-full h-[116px] rounded-lg border border-[#E5E1E1] p-4 text-[#777980] text-sm font-normal font-['Montserrat'] resize-none"
+                    className="w-full h-[116px] rounded-lg border border-[#E5E1E1] p-4 text-[#777980] text-sm font-normal   resize-none"
                   />
                   {errors.body && <p className="text-red-500 text-sm mt-1">{errors.body.message}</p>}
                 </div>
@@ -112,7 +112,7 @@ export default function MailModal({ isOpen, onClose, selectedStudents }) {
                 <path d="M9.90366 10.9167L12.8203 8" stroke="white" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M2.60906 7.50556C1.72572 7.82104 1.80193 9.09466 2.71659 9.30257L9.90348 10.917L11.5179 18.1039C11.7258 19.0186 12.9994 19.0947 13.3149 18.2114L18.597 3.42163C18.863 2.67671 18.1437 1.95746 17.3988 2.2235L2.60906 7.50556Z" stroke="white" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span className="text-white text-base font-medium font-['Montserrat'] leading-none">Send</span>
+              <span className="text-white text-base font-medium   leading-none">Send</span>
             </button>
           </div>
         </form>

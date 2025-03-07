@@ -37,7 +37,7 @@ export default function Templates() {
         <div className="w-full h-auto pl-6 pr-6 py-6 bg-white rounded-xl flex-col justify-start items-start gap-4 flex">
           {/* Header */}
           <div className="w-full flex justify-between items-center mb-6">
-            <div className="text-[#070707] text-2xl font-semibold font-['Montserrat']">Email Templates</div>
+            <div className="text-[#070707] text-2xl font-semibold  ">Email Templates</div>
             <div 
               onClick={handleAddTemplate}
               className="px-[18px] py-3 bg-[#b60000] rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-[#a00000] transition-colors"
@@ -46,7 +46,7 @@ export default function Templates() {
                 <path d="M10.3201 7.09442V13.7611M13.6535 10.4278H6.98682" stroke="white" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M18.6535 10.4278C18.6535 5.82538 14.9225 2.09442 10.3201 2.09442C5.71777 2.09442 1.98682 5.82538 1.98682 10.4278C1.98682 15.0301 5.71777 18.7611 10.3201 18.7611C14.9225 18.7611 18.6535 15.0301 18.6535 10.4278Z" stroke="white" strokeWidth="1.25"/>
               </svg>
-              <span className="text-white text-base font-medium font-['Montserrat']">Add Email Template</span>
+              <span className="text-white text-base font-medium  ">Add Email Template</span>
             </div>
           </div>
 
@@ -55,20 +55,20 @@ export default function Templates() {
             <table className="w-full">
               <thead>
                 <tr className="bg-[#eceff3]">
-                  <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">List</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Template Name</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Subject</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Date</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Action</th>
+                  <th className="p-4 text-left text-[#070707] text-base font-normal  ">List</th>
+                  <th className="p-4 text-left text-[#070707] text-base font-normal  ">Template Name</th>
+                  <th className="p-4 text-left text-[#070707] text-base font-normal  ">Subject</th>
+                  <th className="p-4 text-left text-[#070707] text-base font-normal  ">Date</th>
+                  <th className="p-4 text-left text-[#070707] text-base font-normal  ">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {templates.map((item, index) => (
                   <tr key={item.id} className="border-b border-[#eaecf0]">
-                    <td className="p-4 text-[#1d1f2c] text-sm font-normal font-['Montserrat']">{index + 1}</td>
-                    <td className="p-4 text-[#1d1f2c] text-base font-normal font-['Montserrat']">{item.templateName}</td>
-                    <td className="p-4 text-[#777980] text-base font-normal font-['Montserrat']">{item.subject}</td>
-                    <td className="p-4 text-[#777980] text-base font-normal font-['Montserrat']">{item.date}</td>
+                    <td className="p-4 text-[#1d1f2c] text-sm font-normal  ">{index + 1}</td>
+                    <td className="p-4 text-[#1d1f2c] text-base font-normal  ">{item.templateName}</td>
+                    <td className="p-4 text-[#777980] text-base font-normal  ">{item.subject}</td>
+                    <td className="p-4 text-[#777980] text-base font-normal  ">{item.date}</td>
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <button className="cursor-pointer hover:opacity-80 transition-opacity">

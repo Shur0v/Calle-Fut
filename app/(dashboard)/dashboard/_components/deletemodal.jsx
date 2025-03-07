@@ -39,10 +39,10 @@ export default function DeleteModal({ isOpen, onClose, data, onDelete }) {
           </div>
           
           <div className="text-center flex flex-col gap-2">
-            <h3 className="text-lg font-semibold font-['Montserrat'] text-[#070707]">
+            <h3 className="text-lg font-semibold   text-[#070707]">
               Are you sure you want to delete this record?
             </h3>
-            <p className="text-[#777980] text-sm font-normal font-['Montserrat']">
+            <p className="text-[#777980] text-sm font-normal  ">
               {data?.name ? `"${data.name}"` : 'This record'} will be permanently removed from the system.<br/>
               This action cannot be undone.
             </p>
@@ -51,13 +51,13 @@ export default function DeleteModal({ isOpen, onClose, data, onDelete }) {
           <div className="flex items-center gap-4 mt-4">
             <button
               onClick={handleDelete}
-              className="px-6 py-3 bg-[#b60000] rounded-lg text-white text-base font-medium font-['Montserrat'] hover:bg-[#a00000] transition-colors"
+              className="px-6 py-3 bg-[#b60000] rounded-lg text-white text-base font-medium   hover:bg-[#a00000] transition-colors"
             >
               Yes, Delete
             </button>
             <button
               onClick={onClose}
-              className="px-6 py-3 border border-[#db0000]/30 rounded-lg text-[#b60000] text-base font-medium font-['Montserrat'] hover:bg-[#ffefef] transition-colors"
+              className="px-6 py-3 border border-[#db0000]/30 rounded-lg text-[#b60000] text-base font-medium   hover:bg-[#ffefef] transition-colors"
             >
               No, Cancel
             </button>

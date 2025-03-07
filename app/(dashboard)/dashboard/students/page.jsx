@@ -4,19 +4,10 @@ import ViewModal from '../_components/viewmodal';
 import MailModal from '../_components/mailmodal';
 import EditModal from '../_components/editmodal';
 import DeleteModal from '../_components/deletemodal';
-import { getAllStudents, updateStudent, deleteStudent } from '../_data/studentData';
-
-// Move initialData outside the component
-const initialData = [
-  { id: 1, name: "Jenny Wilson", age: "16 Years", email: "abcd@gmail.com", joinDate: "16/02/2025", time: "4:00 pm", status: "Active" },
-  { id: 2, name: "Robert Fox", age: "18 Years", email: "robert@gmail.com", joinDate: "15/02/2025", time: "3:30 pm", status: "Inactive" },
-  { id: 3, name: "Wade Warren", age: "17 Years", email: "wade@gmail.com", joinDate: "14/02/2025", time: "2:45 pm", status: "Active" },
-  { id: 4, name: "Esther Howard", age: "19 Years", email: "esther@gmail.com", joinDate: "13/02/2025", time: "1:15 pm", status: "Active" },
-  { id: 5, name: "Leslie Alexander", age: "16 Years", email: "leslie@gmail.com", joinDate: "12/02/2025", time: "11:30 am", status: "Inactive" },
-  { id: 6, name: "Cameron Williamson", age: "11 Years", email: "cameron@gmail.com", joinDate: "11/02/2025", time: "10:00 am", status: "Active" }
-];
+import { StudentApis } from '@/app/api/studentApis';
 
 export default function Students() {
+  const [mounted, setMounted] = React.useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
   const [isMailModalOpen, setIsMailModalOpen] = React.useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -25,56 +16,96 @@ export default function Students() {
   const [selectedStudents, setSelectedStudents] = React.useState([]);
   const [showActionMenu, setShowActionMenu] = React.useState(false);
   const [actionMenuPosition, setActionMenuPosition] = React.useState({ top: 0, left: 0 });
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
 
-  // Initialize with data from our data file
-  const [tableData, setTableData] = React.useState(getAllStudents());
-  const [filteredData, setFilteredData] = React.useState(getAllStudents());
+  // Initialize with empty data
+  const [tableData, setTableData] = React.useState([]);
+  const [filteredData, setFilteredData] = React.useState([]);
   const [ageFilter, setAgeFilter] = React.useState('All');
   const [statusFilter, setStatusFilter] = React.useState('All');
+  const [statistics, setStatistics] = React.useState({
+    totalStudents: 0,
+    activeStudents: 0,
+    inactiveStudents: 0
+  });
 
-  // Load data from localStorage on component mount
+  // Set mounted state
   React.useEffect(() => {
-    const savedData = localStorage.getItem('studentData');
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        setTableData(parsedData);
-        setFilteredData(parsedData);
-      } catch (e) {
-        console.error('Error parsing saved data:', e);
-      }
-    }
+    setMounted(true);
   }, []);
 
-  // Save to localStorage whenever tableData changes
+  // Fetch students data
   React.useEffect(() => {
-    localStorage.setItem('studentData', JSON.stringify(tableData));
-  }, [tableData]);
+    if (!mounted) return;
+
+    const fetchStudentsData = async () => {
+      try {
+        setLoading(true);
+        const response = await StudentApis.getStudents();
+        console.log('API Response:', response);
+        
+        if (response.success) {
+          const { students, statistics } = response.data;
+          console.log('Students Data:', students);
+          console.log('Statistics:', statistics);
+          
+          setTableData(students || []);
+          setFilteredData(students || []);
+          setStatistics(statistics || {
+            totalStudents: 0,
+            activeStudents: 0,
+            inactiveStudents: 0
+          });
+        } else {
+          console.error('API Error:', response.message);
+          setError(response.message || 'Failed to fetch students data');
+        }
+      } catch (err) {
+        console.error('Students data fetch error:', err);
+        setError('Error fetching students data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudentsData();
+  }, [mounted]);
 
   // Update filtered data when filters or tableData changes
   React.useEffect(() => {
+    if (!mounted) return;
+    
     let filtered = [...tableData];
     
+    // Filter by age (compare as numbers)
     if (ageFilter !== 'All') {
-      filtered = filtered.filter(item => item.age === ageFilter);
+      filtered = filtered.filter(item => 
+        String(item.age) === String(ageFilter)
+      );
     }
     
+    // Filter by status
     if (statusFilter !== 'All') {
-      filtered = filtered.filter(item => item.status === statusFilter);
+      filtered = filtered.filter(item => 
+        item.status.toLowerCase() === statusFilter.toLowerCase()
+      );
     }
     
     setFilteredData(filtered);
-  }, [ageFilter, statusFilter, tableData]);
+  }, [ageFilter, statusFilter, tableData, mounted]);
 
   // Generate age options from tableData
   const generateAgeOptions = React.useCallback(() => {
-    const ages = tableData.map(item => parseInt(item.age));
+    const ages = tableData.map(item => parseInt(item.age) || 0).filter(age => age > 0);
+    if (ages.length === 0) return ['All'];
+    
     const minAge = Math.min(...ages);
     const maxAge = Math.max(...ages);
     
     const ageOptions = ['All'];
     for (let age = minAge; age <= maxAge; age++) {
-      ageOptions.push(`${age} Years`);
+      ageOptions.push(`${age}`);
     }
     return ageOptions;
   }, [tableData]);
@@ -83,11 +114,11 @@ export default function Students() {
   const statusOptions = ['All', 'Active', 'Inactive'];
 
   const renderStatus = (status) => {
-    const isActive = status === "Active";
+    const isActive = status.toLowerCase() === "active";
     return (
-      <div className={`h-[26px] pl-1.5 pr-2 py-1.5 ${isActive ? 'bg-[#38c976]/10' : 'bg-[#fe5050]/10'} rounded-2xl border ${isActive ? 'border-[#abefc6]' : 'border-[#fe5050]'} justify-center items-center gap-1 flex`}>
-        <div className={`text-center ${isActive ? 'text-[#067647]' : 'text-[#fe5050]'} text-sm font-normal font-['Montserrat'] leading-[14px]`}>
-          {status}
+      <div className={`h-[26px] pl-1.5 pr-2 py-1.5 ${isActive ? 'bg-green-100' : 'bg-[#fe5050]/10'} rounded-2xl border ${isActive ? 'border-green-300' : 'border-[#fe5050]'} justify-center items-center gap-1 flex`}>
+        <div className={`text-center ${isActive ? 'text-green-700' : 'text-[#fe5050]'} text-sm font-normal   leading-[14px]`}>
+          {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
         </div>
       </div>
     );
@@ -106,9 +137,20 @@ export default function Students() {
     setShowActionMenu(true);
   };
 
-  const handleViewClick = () => {
-    console.log('View clicked, opening modal with student:', selectedStudent);
-    setIsViewModalOpen(true);
+  const handleViewClick = async () => {
+    try {
+      console.log('Fetching student details:', selectedStudent.id);
+      const response = await StudentApis.getStudentById(selectedStudent.id);
+      
+      if (response.success) {
+        setSelectedStudent(response.data);
+        setIsViewModalOpen(true);
+      } else {
+        console.error('Failed to fetch student details:', response.message);
+      }
+    } catch (err) {
+      console.error('Error fetching student details:', err);
+    }
     setShowActionMenu(false);
   };
 
@@ -169,24 +211,74 @@ export default function Students() {
     });
   }, [isViewModalOpen, selectedStudent, showActionMenu]);
 
-  const handleUpdateStudent = (updatedStudent) => {
-    // Update the main data
-    const updatedData = updateStudent(updatedStudent);
-    // Update the state
-    setTableData(updatedData);
+  const handleUpdateStudent = async (updatedData) => {
+    try {
+      console.log('Updating student:', selectedStudent.id, updatedData);
+      
+      // Format the data to match the API expectations
+      const formattedData = {
+        name: updatedData.name || selectedStudent.name,
+        age: updatedData.age || selectedStudent.age,
+        email: updatedData.email || selectedStudent.email,
+        status: updatedData.status || selectedStudent.status
+      };
+
+      const response = await StudentApis.updateStudent(selectedStudent.id, formattedData);
+      console.log('Update response:', response);
+
+      if (response.success) {
+        // Refresh the students list
+        const studentsResponse = await StudentApis.getStudents();
+        if (studentsResponse.success) {
+          const { students, statistics } = studentsResponse.data;
+          setTableData(students || []);
+          setFilteredData(students || []);
+          setStatistics(statistics || {
+            totalStudents: 0,
+            activeStudents: 0,
+            inactiveStudents: 0
+          });
+        }
+        setIsEditModalOpen(false);
+        setSelectedStudent(null);
+      } else {
+        console.error('Failed to update student:', response.message);
+      }
+    } catch (err) {
+      console.error('Error updating student:', err);
+    }
   };
 
-  const handleDeleteStudent = (studentId) => {
-    // Delete from main data
-    const updatedData = deleteStudent(studentId);
-    // Update the state
-    setTableData(updatedData);
+  const handleDeleteStudent = async () => {
+    try {
+      const response = await StudentApis.deleteStudent(selectedStudent.id);
+      if (response.success) {
+        // Refresh the students list
+        const studentsResponse = await StudentApis.getStudents();
+        if (studentsResponse.success) {
+          const { students, statistics } = studentsResponse.data;
+          setTableData(students || []);
+          setFilteredData(students || []);
+          setStatistics(statistics || {
+            totalStudents: 0,
+            activeStudents: 0,
+            inactiveStudents: 0
+          });
+        }
+        setIsDeleteModalOpen(false);
+        setSelectedStudent(null);
+      } else {
+        console.error('Failed to delete student:', response.message);
+      }
+    } catch (err) {
+      console.error('Error deleting student:', err);
+    }
   };
 
   return (
     <div className="relative">
       <div className="flex justify-between items-center mb-6">
-        <div className="text-[#070707] text-2xl font-semibold font-['Montserrat'] leading-normal">All Student List</div>
+        <div className="text-[#070707] text-2xl font-semibold   leading-normal">All Student List</div>
         <div className="h-12 px-[18px] py-3 bg-[#b60000] rounded-lg justify-center items-center gap-1.5 inline-flex cursor-pointer" onClick={handleSendEmailAll}>
           <div className="relative">
   <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -194,7 +286,7 @@ export default function Students() {
               <path d="M2.49947 11.73C2.55394 14.2847 2.58119 15.5619 3.52379 16.5082C4.46639 17.4543 5.77827 17.4872 8.40202 17.5532C10.0191 17.5938 11.6202 17.5938 13.2373 17.5532C15.8611 17.4872 17.1729 17.4543 18.1156 16.5082C19.0582 15.5619 19.0854 14.2847 19.1398 11.73C19.1574 10.9086 19.1574 10.0921 19.1398 9.27066C19.0854 6.71604 19.0582 5.43873 18.1156 4.49254C17.1729 3.54635 15.8611 3.51339 13.2373 3.44747C11.6202 3.40683 10.0191 3.40683 8.40201 3.44746C5.77827 3.51338 4.46639 3.54633 3.52379 4.49253C2.58118 5.43873 2.55394 6.71603 2.49946 9.27066C2.48194 10.0921 2.48195 10.9086 2.49947 11.73Z" stroke="white" strokeWidth="1.25" strokeLinejoin="round"/>
   </svg>
   </div>
-  <div className="text-white text-base font-medium font-['Montserrat'] leading-none">Send Email All</div>
+  <div className="text-white text-base font-medium   leading-none">Send Email All</div>
 </div>
       </div>
 
@@ -202,7 +294,7 @@ export default function Students() {
         <div className="w-full relative">
           <div className="w-full flex-col justify-start items-center gap-4 inline-flex">
       <div className="self-stretch justify-between items-center inline-flex">
-        <div className="text-[#070707] text-2xl font-semibold font-['Montserrat'] leading-normal">All Student List</div>
+        <div className="text-[#070707] text-2xl font-semibold   leading-normal">All Student List</div>
         <div className="h-10 justify-end items-center gap-3 flex">
                 <div className="relative">
                   <select
@@ -254,11 +346,11 @@ export default function Students() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData.map((item) => (
+                  {filteredData.map((item, index) => (
                     <tr key={item.id} className="border-b border-[#eaecf0]">
-                      <td className="p-4 text-[#1d1f2c] text-sm font-normal">{item.id}</td>
+                      <td className="p-4 text-[#1d1f2c] text-sm font-normal">{index + 1}</td>
                       <td className="p-4 text-[#1d1f2c] text-base font-normal">{item.name}</td>
-                      <td className="p-4 text-[#777980] text-base font-normal">{item.age}</td>
+                      <td className="p-4 text-[#777980] text-base font-normal">{item.age ? `${item.age} Years` : ''}</td>
                       <td className="p-4 text-[#777980] text-base font-normal">{item.email}</td>
                       <td className="p-4 text-[#777980] text-base font-normal">{item.joinDate}</td>
                       <td className="p-4 text-[#777980] text-base font-normal">{item.time}</td>
@@ -273,9 +365,9 @@ export default function Students() {
                               <path d="M10.3164 10.4277H10.3254" stroke="#777980" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                               <path d="M14.3203 10.4277H14.3293" stroke="#777980" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                               <path d="M6.32031 10.4277H6.32931" stroke="#777980" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+                            </svg>
                           </button>
-            </div>
+                        </div>
                       </td>
                     </tr>
                   ))}

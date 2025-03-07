@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import icon1 from '@/public/dashboard/icon/icon7.svg';
 import icon2 from '@/public/dashboard/icon/icon8.svg';
@@ -9,94 +9,134 @@ import eye from '@/public/dashboard/icon/eye.svg';
 import mail from '@/public/dashboard/icon/mail.svg';
 import ViewModal from './_components/viewmodal';
 import MailModal from './_components/mailmodal';
+import DashboardApis from '@/app/api/dashboardApis';
 
 export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = React.useState(false);
   const [isMailModalOpen, setIsMailModalOpen] = React.useState(false);
   const [selectedStudent, setSelectedStudent] = React.useState(null);
   const [selectedStudents, setSelectedStudents] = React.useState([]);
-
-  const tableData = [
-    { id: 1, name: "Jenny Wilson", age: "16 Years", email: "abcd@gmail.com", joinDate: "16/02/2025", time: "4:00 pm", status: "Active" },
-    { id: 2, name: "Robert Fox", age: "18 Years", email: "robert@gmail.com", joinDate: "15/02/2025", time: "3:30 pm", status: "Inactive" },
-    { id: 3, name: "Wade Warren", age: "17 Years", email: "wade@gmail.com", joinDate: "14/02/2025", time: "2:45 pm", status: "Active" },
-    { id: 4, name: "Esther Howard", age: "19 Years", email: "esther@gmail.com", joinDate: "13/02/2025", time: "1:15 pm", status: "Active" },
-    { id: 5, name: "Leslie Alexander", age: "16 Years", email: "leslie@gmail.com", joinDate: "12/02/2025", time: "11:30 am", status: "Inactive" },
-    { id: 6, name: "Cameron Williamson", age: "11 Years", email: "cameron@gmail.com", joinDate: "11/02/2025", time: "10:00 am", status: "Active" },
-    { id: 7, name: "Guy Hawkins", age: "12 Years", email: "guy@gmail.com", joinDate: "10/02/2025", time: "9:45 am", status: "Inactive" },
-    { id: 8, name: "Kathryn Murphy", age: "13 Years", email: "kathryn@gmail.com", joinDate: "09/02/2025", time: "9:30 am", status: "Active" },
-    { id: 9, name: "Dianne Russell", age: "14 Years", email: "dianne@gmail.com", joinDate: "08/02/2025", time: "8:30 am", status: "Active" },
-    { id: 10, name: "Floyd Miles", age: "15 Years", email: "floyd@gmail.com", joinDate: "07/02/2025", time: "8:00 am", status: "Inactive" },
-    { id: 11, name: "Annette Black", age: "11 Years", email: "annette@gmail.com", joinDate: "06/02/2025", time: "7:45 am", status: "Active" },
-    { id: 12, name: "Jacob Jones", age: "12 Years", email: "jacob@gmail.com", joinDate: "05/02/2025", time: "7:30 am", status: "Inactive" },
-    { id: 13, name: "Kristin Watson", age: "13 Years", email: "kristin@gmail.com", joinDate: "04/02/2025", time: "7:15 am", status: "Active" },
-    { id: 14, name: "Savannah Nguyen", age: "14 Years", email: "savannah@gmail.com", joinDate: "03/02/2025", time: "6:45 am", status: "Active" },
-    { id: 15, name: "Courtney Henry", age: "15 Years", email: "courtney@gmail.com", joinDate: "02/02/2025", time: "6:30 am", status: "Inactive" },
-    { id: 16, name: "Jerome Bell", age: "16 Years", email: "jerome@gmail.com", joinDate: "01/02/2025", time: "6:15 am", status: "Active" },
-    { id: 17, name: "Bessie Cooper", age: "17 Years", email: "bessie@gmail.com", joinDate: "31/01/2025", time: "6:00 am", status: "Inactive" },
-    { id: 18, name: "Ralph Edwards", age: "18 Years", email: "ralph@gmail.com", joinDate: "30/01/2025", time: "5:45 am", status: "Active" },
-    { id: 19, name: "Marvin McKinney", age: "19 Years", email: "marvin@gmail.com", joinDate: "29/01/2025", time: "5:30 am", status: "Active" },
-    { id: 20, name: "Eleanor Pena", age: "11 Years", email: "eleanor@gmail.com", joinDate: "28/01/2025", time: "5:15 am", status: "Inactive" },
-    { id: 21, name: "Arlene McCoy", age: "12 Years", email: "arlene@gmail.com", joinDate: "27/01/2025", time: "5:00 am", status: "Active" },
-    { id: 22, name: "Devon Lane", age: "13 Years", email: "devon@gmail.com", joinDate: "26/01/2025", time: "4:45 am", status: "Inactive" },
-    { id: 23, name: "Ronald Richards", age: "14 Years", email: "ronald@gmail.com", joinDate: "25/01/2025", time: "4:30 am", status: "Active" },
-    { id: 24, name: "Maggie Pierce", age: "15 Years", email: "maggie@gmail.com", joinDate: "24/01/2025", time: "4:15 am", status: "Active" },
-    { id: 25, name: "Hannah Miles", age: "16 Years", email: "hannah@gmail.com", joinDate: "23/01/2025", time: "4:00 am", status: "Inactive" },
-    { id: 26, name: "Lucas Kim", age: "17 Years", email: "lucas@gmail.com", joinDate: "22/01/2025", time: "3:45 am", status: "Active" },
-    { id: 27, name: "Ava Cooper", age: "18 Years", email: "ava@gmail.com", joinDate: "21/01/2025", time: "3:30 am", status: "Inactive" },
-    { id: 28, name: "Sophia Reed", age: "19 Years", email: "sophia@gmail.com", joinDate: "20/01/2025", time: "3:15 am", status: "Active" },
-    { id: 29, name: "Ethan Ross", age: "11 Years", email: "ethan@gmail.com", joinDate: "19/01/2025", time: "3:00 am", status: "Active" },
-    { id: 30, name: "Mia Baker", age: "12 Years", email: "mia@gmail.com", joinDate: "18/01/2025", time: "2:45 am", status: "Inactive" },
-    { id: 31, name: "Noah Gray", age: "13 Years", email: "noah@gmail.com", joinDate: "17/01/2025", time: "2:30 am", status: "Active" },
-    { id: 32, name: "Zoe Simmons", age: "14 Years", email: "zoe@gmail.com", joinDate: "16/01/2025", time: "2:15 am", status: "Active" },
-    { id: 33, name: "Nathan Bell", age: "15 Years", email: "nathan@gmail.com", joinDate: "15/01/2025", time: "2:00 am", status: "Inactive" },
-    { id: 34, name: "Isabella Carter", age: "16 Years", email: "isabella@gmail.com", joinDate: "14/01/2025", time: "1:45 am", status: "Active" },
-    { id: 35, name: "Liam Green", age: "17 Years", email: "liam@gmail.com", joinDate: "13/01/2025", time: "1:30 am", status: "Inactive" },
-  ];
+  const [dashboardData, setDashboardData] = React.useState({
+    students: [],
+    statistics: {
+      totalStudents: 0,
+      activeStudents: 0,
+      inactiveStudents: 0,
+      totalBookingRequests: 0
+    }
+  });
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
 
   const [ageFilter, setAgeFilter] = React.useState('All');
   const [statusFilter, setStatusFilter] = React.useState('All');
-  const [filteredData, setFilteredData] = React.useState(tableData);
+  const [filteredData, setFilteredData] = React.useState([]);
 
-  // Dynamically generate age options from tableData
-  const generateAgeOptions = () => {
-    // Extract all ages and convert them to numbers
-    const ages = tableData.map(item => parseInt(item.age));
-    const minAge = Math.min(...ages);
-    const maxAge = Math.max(...ages);
-    
-    // Generate array of all ages between min and max
-    const ageOptions = ['All'];
-    for (let age = minAge; age <= maxAge; age++) {
-      ageOptions.push(`${age} Years`);
-    }
-    return ageOptions;
-  };
+  // Set mounted state
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const ageOptions = generateAgeOptions();
-  const statusOptions = ['All', 'Active', 'Inactive'];
+  // Fetch dashboard data
+  useEffect(() => {
+    if (!mounted) return;
+
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await DashboardApis.getDashboardData();
+        if (response.success) {
+          setDashboardData({
+            students: response.data.students || [],
+            statistics: {
+              totalStudents: response.data.totalStudents || 0,
+              activeStudents: response.data.activeStudents || 0,
+              inactiveStudents: response.data.inactiveStudents || 0,
+              totalBookingRequests: response.data.totalBookingRequests || 0
+            }
+          });
+          setFilteredData(response.data.students || []);
+        } else {
+          setError(response.message || 'Failed to fetch dashboard data');
+        }
+      } catch (err) {
+        setError('Error fetching dashboard data');
+        console.error('Dashboard data fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [mounted]);
 
   // Filter function
   React.useEffect(() => {
-    let filtered = [...tableData];
+    if (!mounted) return;
     
+    let filtered = [...dashboardData.students];
+    
+    // Filter by age (compare as strings and remove "Years" from filter value)
     if (ageFilter !== 'All') {
-      filtered = filtered.filter(item => item.age === ageFilter);
+      const filterAge = ageFilter.replace(' Years', '');
+      filtered = filtered.filter(item => {
+        const studentAge = String(item.age).replace(' Years', '');
+        return studentAge === filterAge;
+      });
     }
     
+    // Filter by status (case-insensitive)
     if (statusFilter !== 'All') {
-      filtered = filtered.filter(item => item.status === statusFilter);
+      filtered = filtered.filter(item => 
+        item.status.toLowerCase() === statusFilter.toLowerCase()
+      );
     }
     
     setFilteredData(filtered);
-  }, [ageFilter, statusFilter]);
+    console.log('Filtered Data:', {
+      ageFilter,
+      statusFilter,
+      originalLength: dashboardData.students.length,
+      filteredLength: filtered.length,
+      filtered
+    });
+  }, [ageFilter, statusFilter, dashboardData.students, mounted]);
+
+  // Generate age options from actual data
+  const generateAgeOptions = React.useCallback(() => {
+    if (!dashboardData.students.length) return ['All'];
+    
+    // Extract unique ages and clean them
+    const uniqueAges = [...new Set(dashboardData.students.map(item => {
+      const age = String(item.age).replace(' Years', '');
+      return `${age} Years`;
+    }))];
+    
+    // Sort ages numerically
+    uniqueAges.sort((a, b) => {
+      const ageA = parseInt(a.replace(' Years', ''));
+      const ageB = parseInt(b.replace(' Years', ''));
+      return ageA - ageB;
+    });
+    
+    return ['All', ...uniqueAges];
+  }, [dashboardData.students]);
+
+  const ageOptions = React.useMemo(() => generateAgeOptions(), [generateAgeOptions]);
+  const statusOptions = ['All', 'Active', 'Inactive'];
+
+  // Don't render anything until mounted
+  if (!mounted) {
+    return null;
+  }
 
   const renderStatus = (status) => {
-    const isActive = status === "Active";
+    const isActive = status.toLowerCase() === "active";
     return (
-      <div className={`h-[26px] pl-1.5 pr-2 py-1.5 ${isActive ? 'bg-[#38c976]/10' : 'bg-[#fe5050]/10'} rounded-2xl border ${isActive ? 'border-[#abefc6]' : 'border-[#fe5050]'} justify-center items-center gap-1 flex`}>
-        <div className={`text-center ${isActive ? 'text-[#067647]' : 'text-[#fe5050]'} text-sm font-normal   leading-[14px]`}>
-          {status}
+      <div className={`h-[26px] pl-1.5 pr-2 py-1.5 ${isActive ? 'bg-green-100' : 'bg-red-100'} rounded-2xl border ${isActive ? 'border-green-300' : 'border-red-300'} justify-center items-center gap-1 flex`}>
+        <div className={`text-center ${isActive ? 'text-green-700' : 'text-red-700'} text-sm font-normal leading-[14px]`}>
+          {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
         </div>
       </div>
     );
@@ -151,7 +191,7 @@ export default function Dashboard() {
                 <div className="text-[#777980] text-lg font-normal   whitespace-nowrap">Total Students</div>
               </div>
               <div className="w-full flex justify-between items-center">
-                <div className="text-[#070707] text-xl font-medium  ">1,250</div>
+                <div className="text-[#070707] text-xl font-medium  ">{dashboardData.statistics.totalStudents}</div>
               </div>
             </div>
           </div>
@@ -175,7 +215,7 @@ export default function Dashboard() {
                 <div className="text-[#777980] text-lg font-normal   whitespace-nowrap">Active Students</div>
               </div>
               <div className="w-full flex justify-between items-center">
-                <div className="text-[#070707] text-xl font-medium  ">600</div>
+                <div className="text-[#070707] text-xl font-medium  ">{dashboardData.statistics.activeStudents}</div>
               </div>
             </div>
           </div>
@@ -199,7 +239,7 @@ export default function Dashboard() {
                 <div className="text-[#777980] text-lg font-normal   whitespace-nowrap">Inactive Students</div>
               </div>
               <div className="w-full flex justify-between items-center">
-                <div className="text-[#070707] text-xl font-medium  ">350</div>
+                <div className="text-[#070707] text-xl font-medium  ">{dashboardData.statistics.inactiveStudents}</div>
               </div>
             </div>
           </div>
@@ -223,7 +263,7 @@ export default function Dashboard() {
                 <div className="text-[#777980] text-lg font-normal   whitespace-nowrap">Total Requested</div>
               </div>
               <div className="w-full flex justify-between items-center">
-                <div className="text-[#070707] text-xl font-medium  ">300</div>
+                <div className="text-[#070707] text-xl font-medium  ">{dashboardData.statistics.totalBookingRequests}</div>
               </div>
             </div>
           </div>
@@ -273,54 +313,64 @@ export default function Dashboard() {
 
           {/* Table */}
           <div className="w-full overflow-x-auto rounded-lg">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-[#eceff3]">
-                  <th className="p-4 text-left text-[#070707] text-base font-normal ">List</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal ">Name</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal ">Age</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal ">Email</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal ">Join Date</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal ">Time</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal ">Status</th>
-                  <th className="p-4 text-left text-[#070707] text-base font-normal ">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item) => (
-                  <tr key={item.id} className="border-b border-[#eaecf0]">
-                    <td className="p-4 text-[#1d1f2c] text-sm font-normal ">{item.id}</td>
-                    <td className="p-4 text-[#1d1f2c] text-sm font-normal ">{item.name}</td>
-                    <td className="p-4 text-[#1d1f2c] text-sm font-normal ">{item.age}</td>
-                    <td className="p-4 text-[#1d1f2c] text-sm font-normal ">{item.email}</td>
-                    <td className="p-4 text-[#1d1f2c] text-sm font-normal ">{item.joinDate}</td>
-                    <td className="p-4 text-[#1d1f2c] text-sm font-normal ">{item.time}</td>
-                    <td className="p-4">{renderStatus(item.status)}</td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <Image 
-                          src={eye} 
-                          alt="View" 
-                          width={16} 
-                          height={17} 
-                          className="cursor-pointer"
-                          onClick={() => handleViewClick(item)}
-                        />
-                        <div className="w-[1px] h-5 bg-[#dfe1e6]"></div>
-                        <Image 
-                          src={mail} 
-                          alt="mail" 
-                          width={16} 
-                          height={17} 
-                          className="cursor-pointer"
-                          onClick={() => handleMailClick(item)}
-                        />
-                      </div>
-                    </td>
+            {loading ? (
+              <div className="w-full h-32 flex items-center justify-center">
+                <div className="text-gray-500">Loading...</div>
+              </div>
+            ) : error ? (
+              <div className="w-full h-32 flex items-center justify-center">
+                <div className="text-red-500">{error}</div>
+              </div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-[#eceff3]">
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">List</th>
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">Name</th>
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">Age</th>
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">Email</th>
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">Join Date</th>
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">Time</th>
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">Status</th>
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredData.map((item, index) => (
+                    <tr key={item.id} className="border-b border-[#eaecf0]">
+                      <td className="p-4 text-[#1d1f2c] text-sm font-normal">{index + 1}</td>
+                      <td className="p-4 text-[#1d1f2c] text-sm font-normal">{item.name}</td>
+                      <td className="p-4 text-[#1d1f2c] text-sm font-normal">{item.age}</td>
+                      <td className="p-4 text-[#1d1f2c] text-sm font-normal">{item.email}</td>
+                      <td className="p-4 text-[#1d1f2c] text-sm font-normal">{item.joinDate}</td>
+                      <td className="p-4 text-[#1d1f2c] text-sm font-normal">{item.time}</td>
+                      <td className="p-4">{renderStatus(item.status)}</td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Image 
+                            src={eye} 
+                            alt="View" 
+                            width={16} 
+                            height={17} 
+                            className="cursor-pointer"
+                            onClick={() => handleViewClick(item)}
+                          />
+                          <div className="w-[1px] h-5 bg-[#dfe1e6]"></div>
+                          <Image 
+                            src={mail} 
+                            alt="mail" 
+                            width={16} 
+                            height={17} 
+                            className="cursor-pointer"
+                            onClick={() => handleMailClick(item)}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
 
           {/* Send Email All button */}
@@ -328,6 +378,7 @@ export default function Dashboard() {
             <button 
               className="px-[18px] py-3 bg-[#b60000] rounded-lg flex items-center gap-1.5 cursor-pointer hover:bg-[#a00000] transition-colors"
               onClick={handleSendEmailAll}
+              disabled={loading || filteredData.length === 0}
             >
               <svg width="20" height="21" viewBox="0 0 20 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1.66699 5.5L7.42784 8.76414C9.55166 9.9675 10.449 9.9675 12.5728 8.76414L18.3337 5.5" stroke="white" strokeWidth="1.25" strokeLinejoin="round"/>

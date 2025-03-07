@@ -103,7 +103,7 @@ export default function Footer() {
             >
               <Image src={logo} alt="Logo" width={64} height={64} className="w-16 h-16" />
             </a>
-            <div className="relative justify-start text-[#d2d2d5] text-base font-normal font-['Montserrat'] leading-normal">
+            <div className="relative justify-start text-[#d2d2d5] text-base font-normal   leading-normal">
               At our Academy, we believe every player has unique talents, and no athlete is ever •not good enough. We're committed to providing a supportive and encouraging environment where each player
               can thrive and become the best version of themselves.
             </div>
@@ -111,7 +111,7 @@ export default function Footer() {
           <div className="h-[172px] flex justify-start items-start gap-10">
             <div className="w-[150px] h-[172px] inline-flex flex-col justify-start items-center gap-6">
               <div className="self-stretch h-9 flex flex-col justify-start items-start gap-3">
-                <div className="relative justify-start text-white text-2xl font-semibold font-['Montserrat'] leading-normal">Quick Links</div>
+                <div className="relative justify-start text-white text-2xl font-semibold   leading-normal">Quick Links</div>
                 <div className="w-[115px] h-[0px] relative border border-[#d2d2d5]" />
               </div>
               <div className="self-stretch h-28 flex flex-col justify-start items-start gap-4">
@@ -120,7 +120,7 @@ export default function Footer() {
                     key={index}
                     href={link.link}
                     onClick={(e) => handleSmoothScroll(e, link.link)}
-                    className="relative justify-start text-[#d2d2d5] text-base font-medium font-['Montserrat'] leading-none hover:text-white transition-colors cursor-pointer"
+                    className="relative justify-start text-[#d2d2d5] text-base font-medium   leading-none hover:text-white transition-colors cursor-pointer"
                   >
                     {link.title}
                   </a>
@@ -129,7 +129,7 @@ export default function Footer() {
             </div>
             <div className="w-[145px] h-[152px] inline-flex flex-col justify-start items-start gap-6">
               <div className="self-stretch h-9 flex flex-col justify-start items-start gap-3">
-                <div className="relative justify-start text-white text-2xl font-semibold font-['Montserrat'] leading-normal">Follow Us</div>
+                <div className="relative justify-start text-white text-2xl font-semibold   leading-normal">Follow Us</div>
                 <div className="w-[115px] h-[0px] relative border border-[#d2d2d5]" />
               </div>
               <div className="w-[122px] h-[92px] flex flex-col justify-start items-start gap-4">
@@ -142,7 +142,7 @@ export default function Footer() {
                     className="self-stretch h-5 inline-flex justify-start items-center gap-2 text-[#d2d2d5] hover:text-white transition-colors"
                   >
                     {social.icon}
-                    <div className="relative justify-start text-base font-medium font-['Montserrat'] leading-none">
+                    <div className="relative justify-start text-base font-medium   leading-none">
                       {social.name}
                     </div>
                   </a>
@@ -151,7 +151,7 @@ export default function Footer() {
             </div>
             <div className="w-[335px] h-[166px] inline-flex flex-col justify-start items-start gap-6">
               <div className="h-9 flex flex-col justify-start items-start gap-3">
-                <div className="relative justify-start text-white text-2xl font-semibold font-['Montserrat'] leading-normal">Contact Info</div>
+                <div className="relative justify-start text-white text-2xl font-semibold   leading-normal">Contact Info</div>
                 <div className="w-[115px] h-[0px] relative border border-[#d2d2d5]" />
               </div>
               <div className="self-stretch h-[106px] flex flex-col justify-start items-start gap-3">
@@ -164,7 +164,7 @@ export default function Footer() {
                     className={`${info.type === 'address' ? 'self-stretch h-[42px]' : 'h-5'} inline-flex justify-start items-center gap-3 text-[#d2d2d5] hover:text-white transition-colors`}
                   >
                     {info.icon}
-                    <div className={`relative justify-start text-base font-medium font-['Montserrat'] ${info.type === 'address' ? 'leading-tight w-[264.32px]' : 'leading-none'}`}>
+                    <div className={`relative justify-start text-base font-medium   ${info.type === 'address' ? 'leading-tight w-[264.32px]' : 'leading-none'}`}>
                       {info.value}
                     </div>
                   </a>
@@ -175,14 +175,14 @@ export default function Footer() {
         </div>
         <div className="self-stretch h-[82px] px-2.5 py-8 bg-[#520000] border border-white/50 inline-flex justify-center items-center gap-2.5">
           <div className="w-[1320px] h-[18px] flex justify-between items-center">
-            <div className="relative justify-start text-[#e9e9ea] text-lg font-normal font-['Montserrat'] leading-[18px]">@2025 KickStart Kids Soccer. All rights reserved.</div>
+            <div className="relative justify-start text-[#e9e9ea] text-lg font-normal   leading-[18px]">@2025 KickStart Kids Soccer. All rights reserved.</div>
             <div className="h-[18px] flex justify-start items-center gap-2">
               <div className="w-5 h-5 relative">
                 <div className="w-[15.83px] h-[15.83px] left-[2.08px] top-[2.08px] absolute border border-[#d2d2d5]" />
                 <div className="w-[7.50px] h-[7.50px] left-[6.25px] top-[6.25px] absolute border border-[#d2d2d5]" />
                 <div className="w-[0.01px] h-[0px] left-[14.58px] top-[5.42px] absolute border-2 border-[#d2d2d5]" />
               </div>
-              <div className="relative justify-start text-[#d2d2d5] text-base font-medium font-['Montserrat'] leading-none">Keep up with our socials! @untappedtalentacademy</div>
+              <div className="relative justify-start text-[#d2d2d5] text-base font-medium   leading-none">Keep up with our socials! @untappedtalentacademy</div>
             </div>
           </div>
         </div>

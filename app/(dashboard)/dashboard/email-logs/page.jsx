@@ -1,57 +1,44 @@
 'use client'
 import React from 'react'
+import { EmailLogsApis } from '@/app/api/emaillogsApis';
 
 export default function Logs() {
-  const tableData = [
-    { 
-      id: 1, 
-      name: "Jenny Wilson", 
-      email: "abcd@gmail.com", 
-      subject: "Welcome to our school",
-      date: "16/02/2025",
-      time: "4:00 pm"
-    },
-    { 
-      id: 2, 
-      name: "Kathryn Murphy", 
-      email: "abcd@gmail.com", 
-      subject: "Your attendance report",
-      date: "16/02/2025",
-      time: "3:30 pm"
-    },
-    { 
-      id: 3, 
-      name: "Dianne Russell", 
-      email: "abcd@gmail.com", 
-      subject: "Upcoming Exam Notice",
-      date: "12/02/2025",
-      time: "2:45 pm"
-    },
-    { 
-      id: 4, 
-      name: "Bessie Cooper", 
-      email: "abcd@gmail.com", 
-      subject: "Your Welcome Email",
-      date: "16/02/2025",
-      time: "1:15 pm"
-    },
-    { 
-      id: 5, 
-      name: "Jane Cooper", 
-      email: "abcd@gmail.com", 
-      subject: "Upcoming Exam Notice",
-      date: "15/02/2025",
-      time: "11:30 am"
-    },
-    { 
-      id: 6, 
-      name: "Arlene McCoy", 
-      email: "abcd@gmail.com", 
-      subject: "Your attendance report",
-      date: "14/02/2025",
-      time: "10:00 am"
-    }
-  ];
+  const [mounted, setMounted] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
+  const [emailLogs, setEmailLogs] = React.useState([]);
+
+  // Set mounted state
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Fetch email logs data
+  React.useEffect(() => {
+    if (!mounted) return;
+
+    const fetchEmailLogs = async () => {
+      try {
+        setLoading(true);
+        const response = await EmailLogsApis.getEmailLogs();
+        console.log('Email Logs API Response:', response);
+        
+        if (response.success) {
+          setEmailLogs(response.data || []);
+        } else {
+          console.error('API Error:', response.message);
+          setError(response.message || 'Failed to fetch email logs');
+        }
+      } catch (err) {
+        console.error('Email logs fetch error:', err);
+        setError('Error fetching email logs');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmailLogs();
+  }, [mounted]);
 
   return (
     <>
@@ -60,35 +47,53 @@ export default function Logs() {
           <div className="w-full h-auto flex-col justify-start items-center gap-4 inline-flex">
             {/* Header */}
             <div className="w-full flex justify-between items-center">
-              <div className="text-[#070707] text-2xl font-semibold font-['Montserrat']">Email Logs</div>
+              <div className="text-[#070707] text-2xl font-semibold  ">Email Logs</div>
             </div>
 
             {/* Table */}
             <div className="w-full overflow-x-auto rounded-lg">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-[#eceff3]">
-                    <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">List</th>
-                    <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Name</th>
-                    <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Email</th>
-                    <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Subject</th>
-                    <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Date</th>
-                    <th className="p-4 text-left text-[#070707] text-base font-normal font-['Montserrat']">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableData.map((item) => (
-                    <tr key={item.id} className="border-b border-[#eaecf0]">
-                      <td className="p-4 text-[#1d1f2c] text-sm font-normal font-['Montserrat']">{item.id}</td>
-                      <td className="p-4 text-[#1d1f2c] text-base font-normal font-['Montserrat']">{item.name}</td>
-                      <td className="p-4 text-[#777980] text-base font-normal font-['Montserrat']">{item.email}</td>
-                      <td className="p-4 text-[#777980] text-base font-normal font-['Montserrat']">{item.subject}</td>
-                      <td className="p-4 text-[#777980] text-base font-normal font-['Montserrat']">{item.date}</td>
-                      <td className="p-4 text-[#777980] text-base font-normal font-['Montserrat']">{item.time}</td>
+              {loading ? (
+                <div className="w-full h-32 flex items-center justify-center">
+                  <div className="text-gray-500">Loading...</div>
+                </div>
+              ) : error ? (
+                <div className="w-full h-32 flex items-center justify-center">
+                  <div className="text-red-500">{error}</div>
+                </div>
+              ) : (
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-[#eceff3]">
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">List</th>
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Name</th>
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Email</th>
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Subject</th>
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Status</th>
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Date</th>
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Time</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {emailLogs.map((item, index) => (
+                      <tr key={item.id} className="border-b border-[#eaecf0]">
+                        <td className="p-4 text-[#1d1f2c] text-sm font-normal  ">{index + 1}</td>
+                        <td className="p-4 text-[#1d1f2c] text-base font-normal  ">{item.name}</td>
+                        <td className="p-4 text-[#777980] text-base font-normal  ">{item.email}</td>
+                        <td className="p-4 text-[#777980] text-base font-normal  ">{item.subject}</td>
+                        <td className="p-4">
+                          <div className={`h-[26px] pl-1.5 pr-2 py-1.5 ${item.status === 'sent' ? 'bg-green-100' : 'bg-[#fe5050]/10'} rounded-2xl border ${item.status === 'sent' ? 'border-green-300' : 'border-[#fe5050]'} justify-center items-center gap-1 flex`}>
+                            <div className={`text-center ${item.status === 'sent' ? 'text-green-700' : 'text-[#fe5050]'} text-sm font-normal   leading-[14px]`}>
+                              {item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase()}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4 text-[#777980] text-base font-normal  ">{item.date}</td>
+                        <td className="p-4 text-[#777980] text-base font-normal  ">{item.time}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
