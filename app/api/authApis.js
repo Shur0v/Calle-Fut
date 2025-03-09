@@ -5,9 +5,132 @@ import Cookies from 'js-cookie';
  * Authentication related API calls
  */
 const AuthApis = {
+    register: async (data) => {
+        try {
+            // Validate required fields
+            if (!data.childs_name || !data.email || !data.password || !data.age) {
+                return {
+                    success: false,
+                    message: 'All fields are required'
+                };
+            }
+
+            // Log the request data for debugging
+            console.log('Registration request data:', {
+                childs_name: data.childs_name,
+                email: data.email,
+                age: data.age,
+                password: '******' // Don't log actual password
+            });
+
+            // Make the API request
+            const response = await axiosClient.post("/auth/register", {
+                childs_name: data.childs_name,
+                email: data.email,
+                password: data.password,
+                age: parseInt(data.age) // Ensure age is sent as a number
+            });
+
+            // Log the response for debugging
+            console.log('Registration API response:', {
+                status: response.status,
+                data: response.data
+            });
+
+            // Check if we have a valid response
+            if (!response || !response.data) {
+                throw new Error('Invalid response from server');
+            }
+
+            // Handle successful registration
+            if (response.data.success) {
+                // Store token if present in authorization object
+                if (response.data.authorization?.token) {
+                    const token = response.data.authorization.token;
+                    const userType = response.data.type || 'user';
+
+                    // Store in cookies
+                    Cookies.set('token', token, { 
+                        expires: 7, // 7 days
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'Lax',
+                        path: '/'
+                    });
+                    Cookies.set('userType', userType, { 
+                        expires: 7,
+                        secure: process.env.NODE_ENV === 'production',
+                        sameSite: 'Lax',
+                        path: '/'
+                    });
+
+                    // Store in localStorage
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('userType', userType);
+                    localStorage.setItem('user', JSON.stringify({
+                        email: data.email,
+                        childs_name: data.childs_name,
+                        type: userType
+                    }));
+                }
+                return {
+                    success: true,
+                    data: response.data,
+                    message: response.data.message || 'Registration successful'
+                };
+            }
+
+            // Handle unsuccessful registration with server message
+            return {
+                success: false,
+                message: response.data.message || 'Registration failed'
+            };
+
+        } catch (error) {
+            console.error('Registration error details:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+                data: error.response?.data
+            });
+
+            // Handle specific error cases
+            if (error.response?.status === 400) {
+                return {
+                    success: false,
+                    message: error.response.data?.message || 'Invalid registration data'
+                };
+            }
+
+            if (error.response?.status === 409) {
+                return {
+                    success: false,
+                    message: 'Email already exists. Please use a different email.'
+                };
+            }
+
+            // Handle network errors
+            if (error.message === 'Network Error') {
+                return {
+                    success: false,
+                    message: 'Unable to connect to the server. Please check your internet connection.'
+                };
+            }
+
+            // Handle any other errors
+            return {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Registration failed. Please try again.'
+            };
+        }
+    },
+
     login: async (data) => {
         try {
-            console.log('Login request data:', data);
+            console.log('Login request data:', {
+                email: data.email,
+                password: '******'
+            });
+
             const response = await axiosClient.post("/auth/login", {
                 email: data.email,
                 password: data.password
@@ -18,16 +141,30 @@ const AuthApis = {
             if (response.data && response.data.success) {
                 // Store token if present in authorization object
                 if (response.data.authorization?.token) {
-                    Cookies.set('token', response.data.authorization.token, { 
+                    const token = response.data.authorization.token;
+                    const userType = response.data.type || 'user';
+
+                    // Store in cookies
+                    Cookies.set('token', token, { 
                         expires: 7, // 7 days
                         secure: process.env.NODE_ENV === 'production',
-                        sameSite: 'Lax'
+                        sameSite: 'Lax',
+                        path: '/'
                     });
-                    Cookies.set('userType', response.data.type || 'admin', { 
+                    Cookies.set('userType', userType, { 
                         expires: 7,
                         secure: process.env.NODE_ENV === 'production',
-                        sameSite: 'Lax'
+                        sameSite: 'Lax',
+                        path: '/'
                     });
+
+                    // Store in localStorage
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('userType', userType);
+                    localStorage.setItem('user', JSON.stringify({
+                        email: data.email,
+                        type: userType
+                    }));
                 }
                 return {
                     success: true,
@@ -62,11 +199,19 @@ const AuthApis = {
     },
 
     logout: () => {
-        Cookies.remove('token');
-        Cookies.remove('userType');
+        // Clear cookies
+        Cookies.remove('token', { path: '/' });
+        Cookies.remove('userType', { path: '/' });
+        
+        // Clear localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('userType');
+        localStorage.removeItem('user');
+
+        // Redirect to login page
         window.location.href = '/admin-login';
     }
-}
+};
 
 export default AuthApis;
 

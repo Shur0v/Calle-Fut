@@ -1,16 +1,44 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import logo from "@/public/client/logo.png";
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Login from "./login";
 import Register from "./register";
+import AuthApis from "@/app/api/authApis";
 
 export default function Menu() {
   const pathname = usePathname();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Check authentication status on mount and when localStorage changes
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('user');
+      if (token && userData) {
+        setIsAuthenticated(true);
+        setUser(JSON.parse(userData));
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    };
+
+    // Check initial auth state
+    checkAuth();
+
+    // Listen for storage changes
+    window.addEventListener('storage', checkAuth);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, []);
 
   // Define menu items with their paths
   const menuItems = [
@@ -25,6 +53,14 @@ export default function Menu() {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleLogout = () => {
+    AuthApis.logout();
+    setIsAuthenticated(false);
+    setUser(null);
+    // Redirect to main page
+    window.location.href = '/';
   };
 
   return (
@@ -54,22 +90,37 @@ export default function Menu() {
           </div>
 
           <div className="justify-start items-center gap-5 flex">
-            <div 
-              onClick={() => setShowLoginModal(true)}
-              className="px-[18px] py-3 rounded-lg border border-[#b60000] justify-center items-center gap-2.5 flex cursor-pointer hover:bg-[#ffefef] transition-colors duration-300"
-            >
-              <div className="text-[#b60000] text-lg font-medium   leading-[27px]">
-                Log In
+            {isAuthenticated ? (
+              // Show logout button when authenticated
+              <div 
+                onClick={handleLogout}
+                className="px-[18px] py-3 rounded-lg border border-[#b60000] justify-center items-center gap-2.5 flex cursor-pointer hover:bg-[#ffefef] transition-colors duration-300"
+              >
+                <div className="text-[#b60000] text-lg font-medium   leading-[27px]">
+                  Logout
+                </div>
               </div>
-            </div>
-            <div 
-              onClick={() => setShowRegisterModal(true)}
-              className="px-[18px] py-3 bg-[#b60000] rounded-lg justify-center items-center gap-2.5 flex cursor-pointer hover:bg-[#990000] transition-colors duration-300"
-            >
-              <div className="text-white text-lg font-medium   leading-[27px]">
-                Sign Up
-              </div>
-            </div>
+            ) : (
+              // Show login and register buttons when not authenticated
+              <>
+                <div 
+                  onClick={() => setShowLoginModal(true)}
+                  className="px-[18px] py-3 rounded-lg border border-[#b60000] justify-center items-center gap-2.5 flex cursor-pointer hover:bg-[#ffefef] transition-colors duration-300"
+                >
+                  <div className="text-[#b60000] text-lg font-medium   leading-[27px]">
+                    Log In
+                  </div>
+                </div>
+                <div 
+                  onClick={() => setShowRegisterModal(true)}
+                  className="px-[18px] py-3 bg-[#b60000] rounded-lg justify-center items-center gap-2.5 flex cursor-pointer hover:bg-[#990000] transition-colors duration-300"
+                >
+                  <div className="text-white text-lg font-medium   leading-[27px]">
+                    Sign Up
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -85,7 +136,14 @@ export default function Menu() {
           }}
         >
           <div className="relative animate-slideUp">
-            <Login />
+            <Login onLoginSuccess={() => {
+              setShowLoginModal(false);
+              setIsAuthenticated(true);
+              const userData = localStorage.getItem('user');
+              if (userData) {
+                setUser(JSON.parse(userData));
+              }
+            }} />
           </div>
         </div>
       )}
@@ -101,7 +159,14 @@ export default function Menu() {
           }}
         >
           <div className="relative animate-slideUp">
-            <Register />
+            <Register onRegisterSuccess={() => {
+              setShowRegisterModal(false);
+              setIsAuthenticated(true);
+              const userData = localStorage.getItem('user');
+              if (userData) {
+                setUser(JSON.parse(userData));
+              }
+            }} />
           </div>
         </div>
       )}

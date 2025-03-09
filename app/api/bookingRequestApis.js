@@ -62,6 +62,84 @@ export const BookingRequestApis = {
         }
     },
 
+    createBooking: async (bookingData) => {
+        try {
+            // Log the full request data and URL
+            console.log('Create Booking - Full Request:', {
+                url: '/api/booking',
+                method: 'POST',
+                data: {
+                    ...bookingData,
+                    password: '******'
+                }
+            });
+
+            const response = await axiosClient.post("/booking", bookingData);
+            
+            // Log the full response
+            console.log('Create Booking - Full Response:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: response.headers,
+                data: response.data
+            });
+
+            // Check if we have a valid response
+            if (!response.data) {
+                throw new Error('No data received from server');
+            }
+
+            // Check if the response indicates success
+            if (response.data.success) {
+                return {
+                    success: true,
+                    data: response.data,
+                    message: response.data.message || 'Booking created successfully'
+                };
+            } else {
+                return {
+                    success: false,
+                    message: response.data.message || 'Failed to create booking',
+                    error: response.data.error
+                };
+            }
+
+        } catch (error) {
+            // Enhanced error logging
+            console.error('Create Booking - Detailed Error:', {
+                message: error.message,
+                response: {
+                    data: error.response?.data,
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    headers: error.response?.headers
+                },
+                request: {
+                    url: error.config?.url,
+                    method: error.config?.method,
+                    data: error.config?.data
+                }
+            });
+            
+            let errorMessage = 'Failed to create booking';
+            
+            if (error.response) {
+                errorMessage = error.response.data?.message || 
+                             `Server error: ${error.response.status} - ${error.response.statusText}`;
+            } else if (error.request) {
+                errorMessage = 'No response received from server. Please check your internet connection.';
+            } else {
+                errorMessage = `Error: ${error.message}`;
+            }
+
+            return {
+                success: false,
+                message: errorMessage,
+                error: error.message
+            };
+        }
+    },
+
     updateBookingStatus: async (bookingId, status) => {
         try {
             console.log('Update Booking Status - Request:', {

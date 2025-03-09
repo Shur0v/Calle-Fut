@@ -5,6 +5,8 @@ import Image from "next/image";
 import top from "@/public/client/contacttop.png";
 import bottom from "@/public/client/contactbottom.png";
 import PasswordModal from "../_components/password-modal";
+import { BookingRequestApis } from "@/app/api/bookingRequestApis";
+import { toast } from "react-hot-toast";
 
 const ageOptions = ["5-7", "8-10", "11-13", "14-16", "17+"];
 const weekDays = [
@@ -20,10 +22,14 @@ const weekDays = [
 export default function BookSession() {
   const [isMounted, setIsMounted] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState(null);
+  
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset
   } = useForm({
     defaultValues: {
       age: "5-7",
@@ -35,9 +41,59 @@ export default function BookSession() {
     setIsMounted(true);
   }, []);
 
-  const onSubmit = (data) => {
+  const handlePasswordSubmit = async (password) => {
+    if (!formData) return;
+    
+    try {
+      setLoading(true);
+      
+      // Validate required fields
+      if (!formData.childName || !formData.parentName || !formData.emailPhone || !formData.age || !formData.sessionDay || !password) {
+        toast.error('Please fill in all required fields');
+        return;
+      }
+
+      // Format data according to API expectations
+      const apiData = {
+        name: formData.childName.trim(),
+        parent_name: formData.parentName.trim(),
+        email: formData.emailPhone.trim().toLowerCase(),
+        age: parseInt(formData.age.split('-')[0]), // Convert age to number
+        session_time: formData.sessionDay.toLowerCase(), // Convert day to lowercase
+        additional_notes: formData.notes?.trim() || '',
+        password: password.trim()
+      };
+
+      // Log the request data (without password)
+      console.log('Booking Request Data:', {
+        ...apiData,
+        password: '******'
+      });
+
+      const response = await BookingRequestApis.createBooking(apiData);
+      console.log('Booking Response:', response);
+      
+      if (response.success) {
+        toast.success(response.message || 'Booking created successfully');
+        reset(); // Reset form
+        setShowPasswordModal(false);
+        setFormData(null); // Clear stored form data
+      } else {
+        // Show specific error message
+        toast.error(response.message || 'Failed to create booking. Please try again.');
+        console.error('Booking Error:', response.error);
+      }
+    } catch (error) {
+      console.error('Booking submission error:', error);
+      toast.error(error.message || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    setFormData(data);
     setShowPasswordModal(true);
-    console.log("Form Data:", data);
   };
 
   // Return null on the server side
@@ -91,9 +147,12 @@ export default function BookSession() {
                 <div className="self-stretch relative">
                   <input
                     {...register("childName", { required: true })}
-                    className="w-full p-4 rounded-lg border border-[#e9e9ea] text-[#777980] text-sm font-normal   leading-[14px]"
+                    className={`w-full p-4 rounded-lg border ${errors.childName ? 'border-red-500' : 'border-[#e9e9ea]'} text-[#777980] text-sm font-normal leading-[14px]`}
                     placeholder="Enter your child name"
                   />
+                  {errors.childName && (
+                    <span className="text-red-500 text-xs mt-1">Child's name is required</span>
+                  )}
                 </div>
               </div>
 
@@ -110,9 +169,12 @@ export default function BookSession() {
                 <div className="self-stretch relative">
                   <input
                     {...register("parentName", { required: true })}
-                    className="w-full p-4 rounded-lg border border-[#e9e9ea] text-[#777980] text-sm font-normal   leading-[14px]"
+                    className={`w-full p-4 rounded-lg border ${errors.parentName ? 'border-red-500' : 'border-[#e9e9ea]'} text-[#777980] text-sm font-normal leading-[14px]`}
                     placeholder="Enter your Parent's Name"
                   />
+                  {errors.parentName && (
+                    <span className="text-red-500 text-xs mt-1">Parent's name is required</span>
+                  )}
                 </div>
               </div>
 
@@ -128,10 +190,21 @@ export default function BookSession() {
                 </div>
                 <div className="self-stretch relative">
                   <input
-                    {...register("emailPhone", { required: true })}
-                    className="w-full p-4 rounded-lg border border-[#e9e9ea] text-[#777980] text-sm font-normal   leading-[14px]"
+                    {...register("emailPhone", { 
+                      required: true,
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: "Invalid email address"
+                      }
+                    })}
+                    className={`w-full p-4 rounded-lg border ${errors.emailPhone ? 'border-red-500' : 'border-[#e9e9ea]'} text-[#777980] text-sm font-normal leading-[14px]`}
                     placeholder="Enter your email"
                   />
+                  {errors.emailPhone && (
+                    <span className="text-red-500 text-xs mt-1">
+                      {errors.emailPhone.type === 'pattern' ? 'Invalid email address' : 'Email is required'}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -147,8 +220,8 @@ export default function BookSession() {
                 </div>
                 <div className="self-stretch relative">
                   <select
-                    {...register("age")}
-                    className="w-full p-4 rounded-lg border border-[#e9e9ea] text-[#777980] text-sm font-normal   leading-[14px] appearance-none"
+                    {...register("age", { required: true })}
+                    className={`w-full p-4 rounded-lg border ${errors.age ? 'border-red-500' : 'border-[#e9e9ea]'} text-[#777980] text-sm font-normal leading-[14px] appearance-none`}
                   >
                     {ageOptions.map((age) => (
                       <option key={age} value={age}>
@@ -173,6 +246,9 @@ export default function BookSession() {
                       />
                     </svg>
                   </div>
+                  {errors.age && (
+                    <span className="text-red-500 text-xs mt-1">Age is required</span>
+                  )}
                 </div>
               </div>
 
@@ -188,8 +264,8 @@ export default function BookSession() {
                 </div>
                 <div className="self-stretch relative">
                   <select
-                    {...register("sessionDay")}
-                    className="w-full p-4 rounded-lg border border-[#e9e9ea] text-[#777980] text-sm font-normal   leading-[14px] appearance-none"
+                    {...register("sessionDay", { required: true })}
+                    className={`w-full p-4 rounded-lg border ${errors.sessionDay ? 'border-red-500' : 'border-[#e9e9ea]'} text-[#777980] text-sm font-normal leading-[14px] appearance-none`}
                   >
                     {weekDays.map((day) => (
                       <option key={day} value={day}>
@@ -214,6 +290,9 @@ export default function BookSession() {
                       />
                     </svg>
                   </div>
+                  {errors.sessionDay && (
+                    <span className="text-red-500 text-xs mt-1">Session day is required</span>
+                  )}
                 </div>
               </div>
 
@@ -239,10 +318,11 @@ export default function BookSession() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="self-stretch h-14 px-[18px] py-3 bg-[#b60000] rounded-lg justify-center items-center gap-2.5 inline-flex mt-16 hover:bg-[#990000] transition-all duration-300 cursor-pointer"
+              disabled={loading}
+              className={`self-stretch h-14 px-[18px] py-3 bg-[#b60000] rounded-lg justify-center items-center gap-2.5 inline-flex mt-16 hover:bg-[#990000] transition-all duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
-              <div className="text-white text-lg font-medium   leading-[27px]">
-                Request Booking
+              <div className="text-white text-lg font-medium leading-[27px]">
+                {loading ? 'Submitting...' : 'Request Booking'}
               </div>
             </button>
           </form>
@@ -260,7 +340,11 @@ export default function BookSession() {
           }}
         >
           <div className="relative animate-slideUp">
-            <PasswordModal onClose={() => setShowPasswordModal(false)} />
+            <PasswordModal 
+              onClose={() => setShowPasswordModal(false)}
+              onSubmit={handlePasswordSubmit}
+              loading={loading}
+            />
           </div>
         </div>
       )}

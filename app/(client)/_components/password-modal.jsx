@@ -1,8 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from 'next/image';
 import logo from '@/public/client/logo.png';
 
-export default function PasswordModal({ onClose }) {
+export default function PasswordModal({ onClose, onSubmit, loading }) {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!password.trim()) {
+      setError('Password is required');
+      return;
+    }
+
+    onSubmit(password);
+  };
+
   return (
     <>
       <div className="w-[676px] h-[286px] p-10 bg-white rounded-xl shadow-[0px_2px_42px_0px_rgba(0,0,0,0.05)] border border-[#ffefef] flex-col justify-start items-center gap-8 inline-flex relative">
@@ -14,29 +28,43 @@ export default function PasswordModal({ onClose }) {
               </div>
             </div>
           </div>
-          <div className="self-stretch h-[72px] flex-col justify-start items-start gap-3 flex">
-            <div className="self-stretch">
-              <span className="text-[#1d1f2c] text-lg font-medium   leading-[18px]">
-                Password
-              </span>
-              <span className="text-[#b60000] text-lg font-medium   leading-[18px]">
-                *
-              </span>
+          <form onSubmit={handleSubmit} className="w-full">
+            <div className="self-stretch h-[72px] flex-col justify-start items-start gap-3 flex">
+              <div className="self-stretch">
+                <span className="text-[#1d1f2c] text-lg font-medium   leading-[18px]">
+                  Password
+                </span>
+                <span className="text-[#b60000] text-lg font-medium   leading-[18px]">
+                  *
+                </span>
+              </div>
+              <div className="self-stretch relative">
+                <input 
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError('');
+                  }}
+                  className={`w-full p-4 rounded-lg border ${error ? 'border-red-500' : 'border-[#e9e9ea]'} text-[#777980] text-sm font-normal leading-[14px] outline-none`}
+                />
+                {error && (
+                  <span className="text-red-500 text-xs mt-1 absolute -bottom-5 left-0">{error}</span>
+                )}
+              </div>
             </div>
-            <div className="self-stretch p-4 rounded-lg border border-[#e9e9ea] justify-start items-center gap-2.5 inline-flex">
-              <input 
-                type="password"
-                placeholder="Enter your password"
-                className="w-full text-[#777980] text-sm font-normal   leading-[14px] outline-none"
-              />
-            </div>
-          </div>
+            <button 
+              type="submit"
+              disabled={loading}
+              className={`self-stretch h-11 px-[18px] py-[9px] bg-[#b60000] rounded-lg justify-center items-center gap-2.5 inline-flex hover:bg-[#990000] transition-colors duration-300 cursor-pointer w-full mt-8 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <div className="text-white text-lg font-medium   leading-[18px]">
+                {loading ? 'Submitting...' : 'Submit'}
+              </div>
+            </button>
+          </form>
         </div>
-        <button className="self-stretch h-11 px-[18px] py-[9px] bg-[#b60000] rounded-lg justify-center items-center gap-2.5 inline-flex hover:bg-[#990000] transition-colors duration-300 cursor-pointer">
-          <div className="text-white text-lg font-medium   leading-[18px]">
-            Submit
-          </div>
-        </button>
         <div 
           onClick={onClose}
           className="absolute top-5 right-3.5 cursor-pointer"
