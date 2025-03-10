@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -12,7 +12,7 @@ import icon5 from '@/public/dashboard/icon/icon5.svg';
 import icon6 from '@/public/dashboard/icon/icon6.svg';
 import logoutIcon from '@/public/dashboard/icon/logout.svg';
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, setIsOpen }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -33,7 +33,18 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="fixed left-0 h-full bg-white flex flex-col justify-between">
+    <>
+      {/* Overlay with blur effect - Only visible when sidebar is open */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 backdrop-blur-sm bg-black/20 z-40 md:hidden transition-all"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`fixed left-0 top-[86px] h-[calc(100vh-86px)] w-[280px] bg-white flex flex-col justify-between z-50 transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <ul className='p-6'>
             <li className={`rounded-[14px] transition-colors mt-2 ${
               pathname === '/dashboard' 
@@ -212,6 +223,7 @@ export default function Sidebar() {
                 </div>
             </div>
         </div>
-    </div>
+      </div>
+    </>
   )
 }

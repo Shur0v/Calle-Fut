@@ -33,7 +33,7 @@ export default function Templates() {
 
   return (
     <>
-      <div className="w-full h-[608px] flex-col justify-start items-start gap-6 inline-flex mt-6">
+      <div className="w-full h-[608px] flex-col justify-start items-start gap-6 inline-flex">
         <div className="w-full h-auto pl-6 pr-6 py-6 bg-white rounded-xl flex-col justify-start items-start gap-4 flex">
           {/* Header */}
           <div className="w-full flex justify-between items-center mb-6">
