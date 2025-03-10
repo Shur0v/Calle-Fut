@@ -170,7 +170,7 @@ export default function Dashboard() {
   };
 
   return (
-    <>
+    <div className="w-full min-h-screen bg-[#F5F7F9] ">
       <div className="w-full flex flex-wrap justify-between items-center gap-6">
         <div className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] h-[122px] p-6 bg-white rounded-lg shadow-[0px_10px_24px_0px_rgba(13,18,36,0.05)] border border-[#f8f9fb] flex-col justify-start items-start gap-4">
           <div className="w-full flex justify-start items-start gap-4">
@@ -400,6 +400,6 @@ export default function Dashboard() {
         onClose={handleCloseMailModal}
         selectedStudents={selectedStudents}
       />
-    </>
+    </div>
   )
 }

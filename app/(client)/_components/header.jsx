@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Image from 'next/image';
 import logo from '@/public/client/logo.png';
@@ -5,6 +6,17 @@ import banner from '@/public/client/banner.png';
 import Menu from "./menu";
 
 export default function Header() {
+  const handleSmoothScroll = (e) => {
+    e.preventDefault();
+    const element = document.getElementById('book-a-session');
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
   return (
     <>
       <div className="relative w-screen h-screen">
@@ -39,11 +51,14 @@ export default function Header() {
                   powered by hard work and discipline."
                 </div>
               </div>
-              <div className="h-[72px] px-[29px] py-[19px] bg-[#b60000] rounded-lg justify-center items-center gap-2.5 inline-flex">
+              <button 
+                onClick={handleSmoothScroll}
+                className="h-[72px] px-[29px] py-[19px] bg-[#b60000] rounded-lg justify-center items-center gap-2.5 inline-flex hover:bg-[#990000] transition-colors duration-300"
+              >
                 <div className="text-white text-lg font-medium   leading-[27px]">
                   Book a session
                 </div>
-              </div>
+              </button>
             </div>
           </div>
         </div>

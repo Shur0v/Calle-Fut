@@ -1,5 +1,8 @@
 import axiosClient from "@/src/utils/axiosClient";
 import Cookies from 'js-cookie';
+import { toast } from 'react-hot-toast';
+
+const isBrowser = typeof window !== 'undefined';
 
 /**
  * Authentication related API calls
@@ -8,7 +11,7 @@ const AuthApis = {
     register: async (data) => {
         try {
             // Validate required fields
-            if (!data.childs_name || !data.email || !data.password || !data.age) {
+            if (!data.childs_name || !data.email || !data.password || !data.age || !data.phone_number) {
                 return {
                     success: false,
                     message: 'All fields are required'
@@ -20,6 +23,7 @@ const AuthApis = {
                 childs_name: data.childs_name,
                 email: data.email,
                 age: data.age,
+                phone_number: data.phone_number,
                 password: '******' // Don't log actual password
             });
 
@@ -28,7 +32,8 @@ const AuthApis = {
                 childs_name: data.childs_name,
                 email: data.email,
                 password: data.password,
-                age: parseInt(data.age) // Ensure age is sent as a number
+                age: parseInt(data.age), // Ensure age is sent as a number
+                phone_number: data.phone_number // Add phone number to request
             });
 
             // Log the response for debugging
@@ -126,21 +131,15 @@ const AuthApis = {
 
     login: async (data) => {
         try {
-            console.log('Login request data:', {
-                email: data.email,
-                password: '******'
-            });
-
             const response = await axiosClient.post("/auth/login", {
                 email: data.email,
                 password: data.password
             });
-            console.log('Login API response:', response);
 
             // Check if response has the expected format
             if (response.data && response.data.success) {
-                // Store token if present in authorization object
-                if (response.data.authorization?.token) {
+                // Store token if present in authorization object and we're in browser
+                if (response.data.authorization?.token && isBrowser) {
                     const token = response.data.authorization.token;
                     const userType = response.data.type || 'user';
 
@@ -172,33 +171,22 @@ const AuthApis = {
                     message: response.data.message || 'Login successful'
                 };
             }
+            
             return {
                 success: false,
-                message: response.data?.message || 'Invalid response from server'
+                message: response.data?.message || 'Login failed'
             };
         } catch (error) {
-            console.error('Login error details:', {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status
-            });
-
-            // Handle network errors specifically
-            if (error.message === 'Network Error') {
-                return {
-                    success: false,
-                    message: 'Unable to connect to the server. Please check your internet connection.'
-                };
-            }
-
             return {
                 success: false,
-                message: error.response?.data?.message || 'Login failed'
+                message: error.message || 'Invalid email or password'
             };
         }
     },
 
     logout: () => {
+        if (!isBrowser) return;
+
         // Clear cookies
         Cookies.remove('token', { path: '/' });
         Cookies.remove('userType', { path: '/' });
@@ -208,8 +196,11 @@ const AuthApis = {
         localStorage.removeItem('userType');
         localStorage.removeItem('user');
 
-        // Redirect to login page
-        window.location.href = '/admin-login';
+        // Show logout toast
+        toast.success('Successfully logged out!');
+
+        // Always redirect to home page
+        window.location.href = '/';
     }
 };
 

@@ -23,8 +23,9 @@ export const BookingRequestApis = {
                 childName: booking.name || '',
                 parentName: booking.parent_name || '',
                 email: booking.email || '',
+                phoneNumber: booking.phone_number || '',
                 age: booking.age ? `${booking.age} Years` : '',
-                sessionDay: booking.session_time || '',
+                sessionDateTime: booking.session_date_time || '',
                 status: booking.status || 'pending',
                 additionalNotes: booking.additional_notes || null
             }));
@@ -64,17 +65,29 @@ export const BookingRequestApis = {
 
     createBooking: async (bookingData) => {
         try {
-            // Log the full request data and URL
+            // Format the data according to API structure
+            const apiData = {
+                name: bookingData.name,
+                parent_name: bookingData.parent_name,
+                email: bookingData.email,
+                age: bookingData.age,
+                phone_number: bookingData.phone_number,
+                session_date_time: bookingData.session_date_time,
+                password: bookingData.password,
+                additional_notes: bookingData.additional_notes || ''
+            };
+
+            // Log the request data (without password)
             console.log('Create Booking - Full Request:', {
                 url: '/api/booking',
                 method: 'POST',
                 data: {
-                    ...bookingData,
+                    ...apiData,
                     password: '******'
                 }
             });
 
-            const response = await axiosClient.post("/booking", bookingData);
+            const response = await axiosClient.post("/booking", apiData);
             
             // Log the full response
             console.log('Create Booking - Full Response:', {

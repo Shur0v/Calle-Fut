@@ -31,12 +31,6 @@ export default function Login({ onLoginSuccess }) {
         password: formData.password
       };
 
-      // Log form data for debugging
-      console.log('Login form data:', {
-        email: data.email,
-        password: '******'
-      });
-
       // Validate required fields
       if (!data.email || !data.password) {
         const missingFields = [];
@@ -45,6 +39,7 @@ export default function Login({ onLoginSuccess }) {
         
         const errorMessage = `Please fill in all required fields: ${missingFields.join(', ')}`;
         toast.error(errorMessage);
+        setLoading(false);
         return;
       }
 
@@ -52,37 +47,38 @@ export default function Login({ onLoginSuccess }) {
       const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
       if (!emailRegex.test(data.email)) {
         toast.error('Please enter a valid email address');
+        setLoading(false);
         return;
       }
 
       const response = await AuthApis.login(data);
-      console.log('Login API response:', response);
       
       if (response.success) {
-        toast.success('Login successful! Welcome back.');
-        reset();
-        
-        // Call the success callback
-        if (onLoginSuccess) {
-          onLoginSuccess();
+        // Only proceed if not admin type
+        if (response.data?.type !== 'admin') {
+          toast.success('Login successful! Welcome back.');
+          reset();
+          
+          // Call the success callback to close modal
+          if (onLoginSuccess) {
+            onLoginSuccess();
+          }
+        } else {
+          // Treat admin login attempt as invalid credentials
+          toast.error('Invalid email or password');
+          setLoading(false);
+          return;
         }
       } else {
-        // Show specific error message from server or fallback message
-        const errorMessage = response.message || 'Login failed. Please check your credentials.';
-        toast.error(errorMessage);
+        // Show error message for wrong password/email
+        toast.error(response.message || 'Invalid email or password');
+        setLoading(false);
       }
     } catch (error) {
       console.error('Login error:', error);
       
-      // Show more specific error message based on the error type
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message);
-      } else if (error.message.includes('Network')) {
-        toast.error('Unable to connect to the server. Please check your internet connection.');
-      } else {
-        toast.error('Something went wrong. Please try again later.');
-      }
-    } finally {
+      // Show user-friendly error message
+      toast.error('Invalid email or password');
       setLoading(false);
     }
   };
@@ -93,10 +89,10 @@ export default function Login({ onLoginSuccess }) {
   }
 
   return (
-    <div className="w-[676px] h-[514px] p-10 bg-white rounded-xl shadow-[0px_2px_42px_0px_rgba(0,0,0,0.05)] border border-[#ffefef] flex-col justify-start items-center gap-8 inline-flex">
-      <div className="self-stretch h-[358px] flex-col justify-start items-start gap-12 flex">
-        <div className="self-stretch h-[134px] flex-col justify-start items-center gap-10 flex">
-          <div className="self-stretch h-[134px] flex-col justify-start items-center gap-3.5 flex">
+    <div className="w-[676px] p-10 bg-white rounded-xl shadow-[0px_2px_42px_0px_rgba(0,0,0,0.05)] border border-[#ffefef] flex-col justify-start items-center gap-8 inline-flex">
+      <div className="self-stretch flex-col justify-start items-start gap-12 flex">
+        <div className="self-stretch flex-col justify-start items-center gap-10 flex">
+          <div className="self-stretch flex-col justify-start items-center gap-3.5 flex">
             <div className="w-20 h-20 relative">
               <div className="w-[35.02px] h-[34.29px] left-[22.12px] top-[22.12px] absolute bg-[#d9d9d9] rounded-full" />
               <Image 
@@ -111,9 +107,9 @@ export default function Login({ onLoginSuccess }) {
             <div className="text-center text-[#070707] text-[40px] font-bold leading-10">Login Your Account</div>
           </div>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="self-stretch h-44 flex-col justify-start items-start gap-[18px] flex">
+        <form onSubmit={handleSubmit(onSubmit)} className="self-stretch flex-col justify-start items-start gap-[18px] flex">
           {/* Email */}
-          <div className="self-stretch h-[76px] flex-col justify-start items-start gap-3 flex">
+          <div className="self-stretch flex-col justify-start items-start gap-3 flex">
             <div className="self-stretch">
               <span className="text-[#1d1f2c] text-lg font-medium leading-[18px]">Email</span>
               <span className="text-[#b60000] text-lg font-medium leading-[18px]">*</span>
@@ -138,7 +134,7 @@ export default function Login({ onLoginSuccess }) {
           </div>
 
           {/* Password */}
-          <div className="self-stretch h-[82px] flex-col justify-start items-start gap-3 flex">
+          <div className="self-stretch flex-col justify-start items-start gap-3 flex">
             <div className="self-stretch">
               <span className="text-[#1d1f2c] text-lg font-medium leading-[18px]">Password</span>
               <span className="text-[#b60000] text-lg font-medium leading-[18px]">*</span>

@@ -38,7 +38,8 @@ export default function Register({ onRegisterSuccess }) {
         password: formData.password,
         age: formData.age.includes('-') 
           ? formData.age.split('-')[0].trim() 
-          : formData.age.replace('+', '').trim()
+          : formData.age.replace('+', '').trim(),
+        phone_number: formData.phoneNumber?.trim().replace(/[^0-9]/g, '') || '' // Ensure it's never undefined
       };
 
       // Log form data for debugging
@@ -48,12 +49,13 @@ export default function Register({ onRegisterSuccess }) {
       });
 
       // Validate required fields
-      if (!data.childs_name || !data.email || !data.password || !data.age) {
+      if (!data.childs_name || !data.email || !data.password || !data.age || !data.phone_number) {
         const missingFields = [];
         if (!data.childs_name) missingFields.push('Child\'s name');
         if (!data.email) missingFields.push('Email');
         if (!data.password) missingFields.push('Password');
         if (!data.age) missingFields.push('Age');
+        if (!data.phone_number) missingFields.push('Phone number');
         
         const errorMessage = `Please fill in all required fields: ${missingFields.join(', ')}`;
         toast.error(errorMessage);
@@ -67,9 +69,16 @@ export default function Register({ onRegisterSuccess }) {
         return;
       }
 
+      // Validate phone number length (9-13 digits)
+      const phoneDigits = data.phone_number.replace(/\D/g, '');
+      if (phoneDigits.length < 9 || phoneDigits.length > 13) {
+        toast.error('Phone number must be between 9 and 13 digits');
+        return;
+      }
+
       // Validate password length
-      if (data.password.length < 6) {
-        toast.error('Password must be at least 6 characters long');
+      if (data.password.length < 8) {
+        toast.error('Password must be at least 8 characters long');
         return;
       }
 
@@ -143,7 +152,7 @@ export default function Register({ onRegisterSuccess }) {
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full">
           {/* Child's Name */}
-          <div className="self-stretch h-[76px] flex-col justify-start items-start gap-3 flex">
+          <div className="self-stretch h-[76px] flex-col justify-start items-start gap-3 flex ">
             <div className="self-stretch">
               <span className="text-[#1d1f2c] text-lg font-medium leading-[18px]">Child's Name</span>
               <span className="text-[#b60000] text-lg font-medium leading-[18px]">*</span>
@@ -165,7 +174,7 @@ export default function Register({ onRegisterSuccess }) {
           </div>
 
           {/* Email */}
-          <div className="self-stretch h-[76px] flex-col justify-start items-start gap-3 flex mt-[18px]">
+          <div className="self-stretch h-[76px] flex-col justify-start items-start gap-3 flex mt-8">
             <div className="self-stretch">
               <span className="text-[#1d1f2c] text-lg font-medium leading-[18px]">Email</span>
               <span className="text-[#b60000] text-lg font-medium leading-[18px]">*</span>
@@ -190,7 +199,7 @@ export default function Register({ onRegisterSuccess }) {
           </div>
 
           {/* Password */}
-          <div className="self-stretch h-[76px] flex-col justify-start items-start gap-3 flex mt-[18px]">
+          <div className="self-stretch h-[76px] flex-col justify-start items-start gap-3 flex mt-8">
             <div className="self-stretch">
               <span className="text-[#1d1f2c] text-lg font-medium leading-[18px]">Password</span>
               <span className="text-[#b60000] text-lg font-medium leading-[18px]">*</span>
@@ -199,7 +208,7 @@ export default function Register({ onRegisterSuccess }) {
               <input 
                 {...register("password", { 
                   required: "Password is required",
-                  minLength: { value: 6, message: "Password must be at least 6 characters" }
+                  minLength: { value: 8, message: "Password must be at least 8 characters" }
                 })}
                 type="password"
                 placeholder="Enter your password"
@@ -211,8 +220,38 @@ export default function Register({ onRegisterSuccess }) {
             </div>
           </div>
 
+          {/* Phone Number */}
+          <div className="self-stretch h-[76px] flex-col justify-start items-start gap-3 flex mt-8">
+            <div className="self-stretch">
+              <span className="text-[#1d1f2c] text-lg font-medium leading-[18px]">Phone Number</span>
+              <span className="text-[#b60000] text-lg font-medium leading-[18px]">*</span>
+            </div>
+            <div className="self-stretch relative">
+              <input 
+                {...register("phoneNumber", { 
+                  required: "Phone number is required",
+                  validate: {
+                    validLength: (value) => {
+                      const digits = value.replace(/\D/g, '');
+                      return (digits.length >= 9 && digits.length <= 13) || 
+                        "Phone number must be between 9 and 13 digits";
+                    }
+                  }
+                })}
+                type="tel"
+                placeholder="Enter your phone number (9-13 digits)"
+                maxLength={15}
+                className={`w-full p-4 rounded-lg border ${errors.phoneNumber ? 'border-red-500' : 'border-[#e9e9ea]'} text-[#777980] text-sm font-normal leading-[14px] outline-none`}
+              />
+              
+              {errors.phoneNumber && (
+                <span className="text-red-500 text-xs mt-1">{errors.phoneNumber.message}</span>
+              )}
+            </div>
+          </div>
+
           {/* Age */}
-          <div className="self-stretch h-[82px] flex-col justify-start items-start gap-3 flex mt-[18px]">
+          <div className="self-stretch h-[82px] flex-col justify-start items-start gap-3 flex mt-8">
             <div className="self-stretch">
               <span className="text-[#1d1f2c] text-lg font-medium leading-[18px]">Age</span>
               <span className="text-[#b60000] text-lg font-medium leading-[18px]">*</span>

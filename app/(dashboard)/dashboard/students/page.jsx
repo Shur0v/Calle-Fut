@@ -339,6 +339,7 @@ export default function Students() {
                     <th className="p-4 text-left text-[#070707] text-base font-normal">Name</th>
                     <th className="p-4 text-left text-[#070707] text-base font-normal">Age</th>
                     <th className="p-4 text-left text-[#070707] text-base font-normal">Email</th>
+                    <th className="p-4 text-left text-[#070707] text-base font-normal">Phone</th>
                     <th className="p-4 text-left text-[#070707] text-base font-normal">Join Date</th>
                     <th className="p-4 text-left text-[#070707] text-base font-normal">Time</th>
                     <th className="p-4 text-left text-[#070707] text-base font-normal">Status</th>
@@ -352,6 +353,7 @@ export default function Students() {
                       <td className="p-4 text-[#1d1f2c] text-base font-normal">{item.name}</td>
                       <td className="p-4 text-[#777980] text-base font-normal">{item.age ? `${item.age} Years` : ''}</td>
                       <td className="p-4 text-[#777980] text-base font-normal">{item.email}</td>
+                      <td className="p-4 text-[#777980] text-base font-normal">{item.phone_number}</td>
                       <td className="p-4 text-[#777980] text-base font-normal">{item.joinDate}</td>
                       <td className="p-4 text-[#777980] text-base font-normal">{item.time}</td>
                       <td className="p-4">{renderStatus(item.status)}</td>

@@ -188,8 +188,9 @@ export default function BookingRequest() {
                       <th className="p-4 text-left text-[#070707] text-base font-normal  ">Child Name</th>
                       <th className="p-4 text-left text-[#070707] text-base font-normal  ">Parent's Name</th>
                       <th className="p-4 text-left text-[#070707] text-base font-normal  ">Email</th>
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Phone</th>
                       <th className="p-4 text-left text-[#070707] text-base font-normal  ">Age</th>
-                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Session Day</th>
+                      <th className="p-4 text-left text-[#070707] text-base font-normal  ">Session Date & Time</th>
                       <th className="p-4 text-left text-[#070707] text-base font-normal  ">Status</th>
                       <th className="p-4 text-left text-[#070707] text-base font-normal  ">Action</th>
                     </tr>
@@ -201,8 +202,18 @@ export default function BookingRequest() {
                         <td className="p-4 text-[#1d1f2c] text-base font-normal  ">{item.childName}</td>
                         <td className="p-4 text-[#777980] text-base font-normal  ">{item.parentName}</td>
                         <td className="p-4 text-[#777980] text-base font-normal  ">{item.email}</td>
+                        <td className="p-4 text-[#777980] text-base font-normal  ">{item.phoneNumber}</td>
                         <td className="p-4 text-[#777980] text-base font-normal  ">{item.age}</td>
-                        <td className="p-4 text-[#777980] text-base font-normal  ">{item.sessionDay}</td>
+                        <td className="p-4 text-[#777980] text-base font-normal  ">
+                          {item.sessionDateTime ? new Date(item.sessionDateTime).toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            hour12: true
+                          }) : '-'}
+                        </td>
                         <td className="p-4">{renderStatus(item.status, item)}</td>
                         <td className="p-4">
                           <div className="flex justify-center items-center">

@@ -81,7 +81,7 @@ export default function Reviews() {
   return (
     <>
       <div className="container mx-auto max-w-[1324px] py-[100px]">
-        <h1 className="text-center text-5xl font-bold mb-5 w-[1212px] mx-auto ">
+        <h1 className="text-center text-5xl font-bold mb-5 w-[1212px] mx-auto mb-10">
           {" "}
           We let our work speak for itself, see what our past players/parents
           have to say about us.

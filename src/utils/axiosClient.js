@@ -31,8 +31,10 @@ axiosClient.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
-    return Promise.reject(error);
+    return Promise.reject({
+      success: false,
+      message: 'Request failed'
+    });
   }
 );
 
@@ -48,31 +50,29 @@ axiosClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Log the error for debugging
-    console.error('Response Error:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-      config: error.config
-    });
+    // Create a standardized error response
+    const errorResponse = {
+      success: false,
+      message: 'An error occurred'
+    };
 
-    // Handle specific error cases
-    if (error.response?.status === 401) {
-      Cookies.remove('token');
-      Cookies.remove('userType');
-      window.location.href = '/admin-login';
-      return Promise.reject(error);
+    if (!error.response) {
+      // Network error or server not reachable
+      errorResponse.message = 'Unable to connect to the server. Please check your internet connection.';
+      return Promise.reject(errorResponse);
     }
 
-    // Handle network errors
-    if (error.message === 'Network Error') {
-      return Promise.reject({
-        ...error,
-        message: 'Unable to connect to the server. Please check your internet connection.'
-      });
+    if (error.response.status === 401) {
+      errorResponse.message = 'Invalid email or password';
+    } else if (error.response.data?.message) {
+      errorResponse.message = error.response.data.message;
+    } else if (error.response.status === 404) {
+      errorResponse.message = 'Service not found';
+    } else if (error.response.status >= 500) {
+      errorResponse.message = 'Server error. Please try again later.';
     }
 
-    return Promise.reject(error);
+    return Promise.reject(errorResponse);
   }
 );
 

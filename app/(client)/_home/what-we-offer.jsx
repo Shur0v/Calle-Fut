@@ -12,23 +12,23 @@ const trainingData = [
       { text: "FREE evaluation session", highlight: " to get started!" }
     ],
     packages: [
-      { sessions: 3, price: 200 },
-      { sessions: 5, price: 300 },
-      { sessions: 10, price: 500 }
+      { sessions: 3, price: 150 },
+      { sessions: 5, price: 220 },
+      { sessions: 10, price: 400 }
     ]
   },
   {
-    title: "Group Training Sessions",
-    subtitle: "Train with Friends!",
+    title: "Dynamic Group Training",
+    subtitle: "Level Up Your Team's Skills!",
     features: [
-      "Small group training sessions",
-      "Competitive team environment",
-      { text: "Flexible scheduling", highlight: " for your convenience!" }
+      "Expert coaching for 2-10 players.",
+      "Focus on key technical abilities and teamwork",
+      { text: "Personalized feedback and progress tracking", highlight: " for every player" }
     ],
     packages: [
-      { sessions: 3, price: 150 },
-      { sessions: 5, price: 250 },
-      { sessions: 10, price: 400 }
+      { sessions: 3, price: 250 },
+      { sessions: 5, price: 450 },
+      { sessions: 10, price: 700 }
     ]
   }
 ];

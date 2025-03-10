@@ -4,6 +4,7 @@ import Image from 'next/image';
 import logo from '@/public/client/logo.png';
 import { useRouter } from 'next/navigation';
 import AuthApis from '@/app/api/authApis';
+import { toast } from 'react-hot-toast';
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -35,17 +36,30 @@ export default function AdminLogin() {
       console.log('Login response:', response);
 
       if (response.success) {
-        console.log('Login successful, redirecting to dashboard...');
-        // First set loading to false
-        setLoading(false);
-        // Then redirect
-        window.location.href = '/dashboard';
+        // Check if the user is an admin
+        if (response.data.type === 'admin') {
+          console.log('Admin login successful, redirecting to dashboard...');
+          toast.success('Welcome back, Admin!');
+          // First set loading to false
+          setLoading(false);
+          // Then redirect
+          window.location.href = '/dashboard';
+        } else {
+          // Not an admin user
+          toast.error('Access denied. This login is for administrators only.');
+          setError('Access denied. This login is for administrators only.');
+          // Clear any stored auth data
+          AuthApis.logout();
+          setLoading(false);
+        }
       } else {
+        toast.error(response.message || 'Invalid email or password');
         setError(response.message || 'Invalid email or password');
         setLoading(false);
       }
     } catch (error) {
       console.error('Login submission error:', error);
+      toast.error(error?.message || 'Something went wrong. Please try again.');
       setError(error?.message || 'Something went wrong. Please try again.');
       setLoading(false);
     }

@@ -10,7 +10,7 @@ export default function Layout({children}) {
         </div>
         <div className='w-full'>
             <DashboardHeader />
-            <div className='p-6 bg-[#F5F7F9] h-screen'>
+            <div className='p-6 bg-[#F5F7F9] h-full'>
             {children}
             </div>
         </div>

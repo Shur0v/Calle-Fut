@@ -2,21 +2,38 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import icon1 from '@/public/dashboard/icon/icon1.svg';
 import icon2 from '@/public/dashboard/icon/icon2.svg';
 import icon3 from '@/public/dashboard/icon/icon3.svg';
 import icon4 from '@/public/dashboard/icon/redo.svg';
 import icon5 from '@/public/dashboard/icon/icon5.svg';
 import icon6 from '@/public/dashboard/icon/icon6.svg';
-
+import logoutIcon from '@/public/dashboard/icon/logout.svg';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
+  const handleLogout = () => {
+    // Clear all types of storage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Clear cookies
+    document.cookie.split(";").forEach((cookie) => {
+      document.cookie = cookie
+        .replace(/^ +/, "")
+        .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+    });
+
+    toast.success('Logged out successfully');
+    router.push('/admin-login');
+  };
 
   return (
-    <div>
+    <div className="fixed left-0 h-full bg-white flex flex-col justify-between">
         <ul className='p-6'>
             <li className={`rounded-[14px] transition-colors mt-2 ${
               pathname === '/dashboard' 
@@ -180,6 +197,21 @@ export default function Sidebar() {
                 </Link>
             </li>
         </ul>
+        
+        <div className="p-6 border-t border-gray-100">
+            <div className="rounded-[14px] transition-colors hover:bg-[#FFEFEF]/80 group cursor-pointer" onClick={handleLogout}>
+                <div className="flex items-center gap-3 px-4 py-[14px]">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center transition-colors bg-[#FFEFEF] group-hover:bg-white">
+                        <Image 
+                            src={logoutIcon} 
+                            alt="Logout Icon" 
+                            className="w-5 h-5"
+                        />
+                    </div>
+                    <span className="text-base font-medium text-[#777980]">Logout</span>
+                </div>
+            </div>
+        </div>
     </div>
   )
 }

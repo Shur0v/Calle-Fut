@@ -23,6 +23,7 @@ export const StudentApis = {
                 name: student.childs_name || '',
                 age: student.age || '',
                 email: student.email || '',
+                phone_number: student.phone_number || '',
                 joinDate: student.created_at ? new Date(student.created_at).toLocaleDateString() : '',
                 time: student.created_at ? new Date(student.created_at).toLocaleTimeString() : '',
                 status: student.status || 'inactive'
@@ -88,6 +89,7 @@ export const StudentApis = {
                 name: student.childs_name || '',
                 age: student.age || '',
                 email: student.email || '',
+                phone_number: student.phone_number || '',
                 joinDate: student.created_at ? new Date(student.created_at).toLocaleDateString() : '',
                 time: student.created_at ? new Date(student.created_at).toLocaleTimeString() : '',
                 status: student.status || 'inactive'
@@ -132,6 +134,7 @@ export const StudentApis = {
                 childs_name: updatedData.name,
                 age: updatedData.age,
                 email: updatedData.email,
+                phone_number: updatedData.phone_number,
                 status: updatedData.status
             };
 

@@ -1,39 +1,183 @@
 "use client"
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import SettingApis from '@/app/api/settingApis'
+import { toast } from 'react-hot-toast'
+import { getUserData } from '@/app/api/settingApis'
+
+// Function to compress image
+const compressImage = (file) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const img = new Image()
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        let width = img.width
+        let height = img.height
+
+        // Max dimensions
+        const MAX_WIDTH = 800
+        const MAX_HEIGHT = 800
+
+        // Calculate new dimensions while maintaining aspect ratio
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width
+            width = MAX_WIDTH
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height
+            height = MAX_HEIGHT
+          }
+        }
+
+        canvas.width = width
+        canvas.height = height
+
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Get compressed image as base64 string
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7) // Adjust quality here (0.7 = 70% quality)
+        resolve(compressedBase64)
+      }
+      img.src = event.target.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
 
 export default function Setting() {
-  // Initialize with null or empty values for server-side rendering
-  const [profileImage, setProfileImage] = useState(null)
-  const [isEditing, setIsEditing] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [originalData, setOriginalData] = useState(null)
+  const [isPasswordChanged, setIsPasswordChanged] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const fileInputRef = useRef(null)
-  
-  // Initialize form values with null
-  const [formValues, setFormValues] = useState({
-    name: '',
-    email: '',
-    password: ''
+  const [userData, setUserData] = useState(null)
+  const [isDataLoaded, setIsDataLoaded] = useState(false)
+  const [currentImageUrl, setCurrentImageUrl] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isDirty },
+    setValue,
+    watch,
+    reset,
+    getValues
+  } = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: '••••••••', // Default password (masked)
+      profileImage: ''
+    }
   })
 
-  // Set initial values after component mounts on client side
-  useEffect(() => {
-    setIsClient(true)
-    setProfileImage('https://placehold.co/79x79')
-    setFormValues({
-      name: 'Coach Marco',
-      email: 'marco@uta.com',
-      password: 'xxxxxxxx'
-    })
-  }, [])
+  // Watch form values for showing/hiding save button
+  const profileImage = watch('profileImage')
+  const password = watch('password')
 
-  const handleImageUpload = (event) => {
+  // Fetch user data when component mounts
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setIsLoading(true);
+        const meData = await getUserData();
+        setUserData(meData);
+        
+        // Set the initial image URL
+        const imageUrl = meData?.avatar_url || 
+            (meData?.avatar ? `${process.env.NEXT_PUBLIC_API_URL}/public/storage/avatar/${meData.avatar}` : null);
+        setCurrentImageUrl(imageUrl || 'https://placehold.co/79x79');
+        
+        setIsDataLoaded(true);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setIsDataLoaded(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    setIsClient(true);
+    fetchUserData();
+  }, []);
+
+  // Set form values AFTER user data is loaded
+  useEffect(() => {
+    if (isClient && isDataLoaded) {
+      const localUser = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      const initialData = {
+        name: userData?.name || localUser?.name || 'Coach Marco',
+        email: userData?.email || localUser?.email || 'marco@uta.com',
+        password: '••••••••',
+        profileImage: userData?.avatar_url || 
+                     (userData?.avatar ? `${process.env.NEXT_PUBLIC_API_URL}/public/storage/avatar/${userData.avatar}` : null) ||
+                     'https://placehold.co/79x79'
+      };
+      
+      setOriginalData(initialData);
+      reset(initialData);
+    }
+  }, [reset, isClient, isDataLoaded, userData]);
+
+  // Handle password field change
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value
+    if (newPassword !== '••••••••') {
+      setIsPasswordChanged(true)
+      // Check password length and show toast if less than 8 characters
+      if (newPassword.length < 8) {
+        toast.error('Password must be at least 8 characters long')
+      }
+    } else {
+      setIsPasswordChanged(false)
+    }
+    setValue('password', newPassword, { shouldDirty: true })
+  }
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword)
+  }
+
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setProfileImage(e.target.result)
-      }
-      reader.readAsDataURL(file)
+        try {
+            setIsLoading(true)
+            toast.loading('Processing image...')
+
+            if (!file.type.startsWith('image/')) {
+                toast.error('Please select an image file')
+                return
+            }
+
+            // Compress image
+            const compressedImage = await compressImage(file)
+            
+            // Update form with compressed image
+            setValue('profileImage', compressedImage, { shouldDirty: true })
+            
+            // Store the compressed image temporarily
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}')
+            localStorage.setItem('user', JSON.stringify({
+                ...currentUser,
+                tempImage: compressedImage
+            }))
+
+            toast.dismiss()
+            toast.success('Image processed successfully')
+        } catch (error) {
+            console.error('Image processing error:', error)
+            toast.error('Failed to process image')
+        } finally {
+            setIsLoading(false)
+        }
     }
   }
 
@@ -41,53 +185,79 @@ export default function Setting() {
     fileInputRef.current?.click()
   }
 
-  const handleRemovePhoto = () => {
-    setProfileImage('https://placehold.co/79x79')
-  }
+  const onSubmit = async (data) => {
+    try {
+      if (isPasswordChanged && data.password.length < 8) {
+        toast.error('Password must be at least 8 characters long')
+        return
+      }
 
-  const handleEdit = () => {
-    setIsEditing(true)
-  }
+      setIsLoading(true)
+      
+      const response = await SettingApis.updateProfile(data, originalData);
+      
+      if (response.success) {
+        toast.success(response.message || 'Profile updated successfully');
+        
+        // Update the image URL from the response
+        if (response.user?.avatar_url) {
+            setCurrentImageUrl(response.user.avatar_url);
+        }
 
-  const handleSave = () => {
-    setIsEditing(false)
+        // Update form with fresh data
+        const newData = {
+            ...originalData,
+            name: data.name,
+            email: data.email,
+            password: '••••••••',
+            profileImage: response.user?.avatar_url || originalData.profileImage
+        };
+        setOriginalData(newData);
+        reset(newData);
+
+        // Trigger header update
+        window.dispatchEvent(new CustomEvent('profileUpdated'));
+      } else {
+        toast.error(response.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Profile update error:', error);
+      toast.error('An error occurred while updating profile');
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   const handleCancel = () => {
-    setFormValues({
-      name: 'Coach Marco',
-      email: 'marco@uta.com',
-      password: 'xxxxxxxx'
-    })
-    setIsEditing(false)
+    if (originalData) {
+      setIsPasswordChanged(false)
+      reset(originalData)
+    }
   }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormValues(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
+  // Update the image display in the profile section
+  const displayImage = watch('profileImage') || currentImageUrl;
 
-  // Don't render anything until client-side hydration is complete
-  if (!isClient) {
-    return null
+  // Show loading indicator while fetching data
+  if (!isClient || !isDataLoaded) {
+    return <div className="w-full text-center py-8">Loading user data...</div>;
   }
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-6">
       {/* Profile Section */}
       <div className="w-full p-6 bg-white rounded-xl flex items-center gap-4">
         <div className="flex items-center gap-6">
           <div className="w-[79.46px] h-[79.46px] relative">
-            {profileImage && (
-              <img 
-                className="w-full h-full rounded-full border border-[#ff9292] object-cover" 
-                src={profileImage} 
-                alt="Profile"
-              />
-            )}
+            <img 
+              className="w-full h-full rounded-full border border-[#ff9292] object-cover" 
+              src={displayImage}
+              alt="Profile"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://placehold.co/79x79';
+              }}
+            />
             <input
               type="file"
               ref={fileInputRef}
@@ -109,19 +279,15 @@ export default function Setting() {
             </div>
           </div>
           <div className="flex flex-col gap-3.5">
-            <div className="text-[#22262e] text-2xl font-semibold  ">{formValues.name}</div>
+            <div className="text-[#22262e] text-2xl font-semibold">{watch('name')}</div>
             <div className="flex gap-4">
               <button 
+                type="button"
                 onClick={handleReplacePhoto}
                 className="px-4 py-3 bg-[#b60000] rounded-lg flex items-center gap-1.5 hover:bg-[#a00000] transition-colors"
+                disabled={isLoading}
               >
-                <span className="text-white text-base font-medium  ">Replace Photo</span>
-              </button>
-              <button 
-                onClick={handleRemovePhoto}
-                className="px-4 py-3 rounded-lg border border-[#db0000]/30 flex items-center gap-1.5 hover:bg-[#fff0f0] transition-colors"
-              >
-                <span className="text-[#b60000] text-base font-medium  ">Remove</span>
+                <span className="text-white text-base font-medium">Replace Photo</span>
               </button>
             </div>
           </div>
@@ -131,92 +297,104 @@ export default function Setting() {
       {/* Settings Section */}
       <div className="w-full">
         <div className="mb-6">
-          <h1 className="text-[#22262e] text-[32px] font-semibold  ">Settings</h1>
+          <h1 className="text-[#22262e] text-[32px] font-semibold">Settings</h1>
         </div>
 
         <div className="w-full p-6 bg-white rounded-2xl">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-[#22262e] text-2xl font-medium  ">Account Settings</h2>
-            <button onClick={handleEdit} className="flex items-center gap-1.5 text-[#b60000] cursor-pointer hover:opacity-80">
-              <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16.9249 5.06993L17.9149 4.07994C18.7351 3.25981 20.0648 3.25981 20.8849 4.07994C21.705 4.90008 21.705 6.22977 20.8849 7.04991L19.8949 8.0399M16.9249 5.06993L10.2656 11.7292C9.75807 12.2368 9.39804 12.8726 9.22397 13.5689L8.5 16.4648L11.3959 15.7408C12.0922 15.5668 12.728 15.2067 13.2356 14.6992L19.8949 8.0399M16.9249 5.06993L19.8949 8.0399" stroke="#B60000" strokeWidth="1.25" strokeLinejoin="round"/>
-                <path d="M19.4999 13.9648C19.4999 17.2523 19.4999 18.896 18.592 20.0024C18.4258 20.2049 18.2401 20.3906 18.0375 20.5568C16.9312 21.4648 15.2874 21.4648 11.9999 21.4648H11.5C7.72876 21.4648 5.84316 21.4648 4.67159 20.2932C3.50003 19.1217 3.5 17.236 3.5 13.4648V12.9648C3.5 9.67736 3.5 8.03363 4.40794 6.92728C4.57417 6.72474 4.7599 6.53901 4.96244 6.37278C6.06879 5.46484 7.71252 5.46484 11 5.46484" stroke="#B60000" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span className="text-lg font-normal  ">Edit</span>
-            </button>
+            <h2 className="text-[#22262e] text-2xl font-medium">Account Settings</h2>
           </div>
 
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-3">
-              <label className="text-[#4a4c56] text-base font-normal  ">Name</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="name"
-                  value={formValues.name}
-                  onChange={handleInputChange}
-                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal   focus:outline-none focus:border-[#b60000] transition-colors"
-                />
-              ) : (
-                <div className="p-5 rounded-lg border border-[#e5e1e1]">
-                  <span className="text-[#777980] text-sm font-normal  ">{formValues.name}</span>
-                </div>
+              <label className="text-[#4a4c56] text-base font-normal">Name</label>
+              <input
+                type="text"
+                {...register("name", { 
+                  required: "Name is required",
+                  minLength: { value: 2, message: "Name must be at least 2 characters" }
+                })}
+                className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal focus:outline-none focus:border-[#b60000] transition-colors"
+                disabled={isLoading}
+              />
+              {errors.name && (
+                <span className="text-red-500 text-xs">{errors.name.message}</span>
               )}
             </div>
 
             <div className="flex flex-col gap-3">
-              <label className="text-[#4a4c56] text-base font-normal  ">Email</label>
-              {isEditing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={formValues.email}
-                  onChange={handleInputChange}
-                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal   focus:outline-none focus:border-[#b60000] transition-colors"
-                />
-              ) : (
-                <div className="p-5 rounded-lg border border-[#e5e1e1]">
-                  <span className="text-[#777980] text-sm font-normal  ">{formValues.email}</span>
-                </div>
+              <label className="text-[#4a4c56] text-base font-normal">Email</label>
+              <input
+                type="email"
+                {...register("email", { 
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Invalid email address"
+                  }
+                })}
+                className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal focus:outline-none focus:border-[#b60000] transition-colors"
+                disabled={isLoading}
+              />
+              {errors.email && (
+                <span className="text-red-500 text-xs">{errors.email.message}</span>
               )}
             </div>
 
             <div className="flex flex-col gap-3">
-              <label className="text-[#4a4c56] text-base font-normal  ">Password</label>
-              {isEditing ? (
+              <label className="text-[#4a4c56] text-base font-normal">Password</label>
+              <div className="relative">
                 <input
-                  type="password"
-                  name="password"
-                  value={formValues.password}
-                  onChange={handleInputChange}
-                  className="p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal   focus:outline-none focus:border-[#b60000] transition-colors"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={handlePasswordChange}
+                  className="w-full p-5 rounded-lg border border-[#e5e1e1] text-[#777980] text-sm font-normal focus:outline-none focus:border-[#b60000] transition-colors"
+                  disabled={isLoading}
                 />
-              ) : (
-                <div className="p-5 rounded-lg border border-[#e5e1e1]">
-                  <span className="text-[#777980] text-sm font-normal  ">{formValues.password}</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <span className="text-red-500 text-xs">{errors.password.message}</span>
               )}
             </div>
           </div>
         </div>
 
-        {isEditing && (
+        {isDirty && (
           <div className="flex justify-end gap-4 mt-6">
             <button 
-              onClick={handleSave}
-              className="w-[100px] h-12 px-[18px] py-3 bg-[#b60000] rounded-lg text-white font-medium   hover:bg-[#a00000] transition-colors"
+              type="submit"
+              disabled={isLoading}
+              className={`w-[100px] h-12 px-[18px] py-3 bg-[#b60000] rounded-lg text-white font-medium hover:bg-[#a00000] transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              Save
+              {isLoading ? 'Saving...' : 'Save'}
             </button>
             <button 
+              type="button"
               onClick={handleCancel}
-              className="w-[100px] h-12 px-[18px] py-3 rounded-lg border border-[#db0000]/30 text-[#b60000] font-medium   hover:bg-[#fff0f0] transition-colors"
+              disabled={isLoading}
+              className={`w-[100px] h-12 px-[18px] py-3 rounded-lg border border-[#db0000]/30 text-[#b60000] font-medium hover:bg-[#fff0f0] transition-colors ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               Cancel
             </button>
           </div>
         )}
       </div>
-    </div>
+    </form>
   )
 }
