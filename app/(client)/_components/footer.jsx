@@ -156,7 +156,7 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="w-full border-t border-white/50">
-        <div className="max-w-[1920px] mx-auto px-4 md:px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="max-w-[1920px] mx-auto px-4 md:px-8 lg:px-[300px] py-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-[#e9e9ea] text-lg font-normal leading-[18px]">
             @2025 KickStart Kids Soccer. All rights reserved.
           </div>
