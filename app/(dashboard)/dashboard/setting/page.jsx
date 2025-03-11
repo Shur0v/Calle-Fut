@@ -185,6 +185,32 @@ export default function Setting() {
     fileInputRef.current?.click()
   }
 
+  const handleRemovePhoto = async () => {
+    try {
+      setIsLoading(true);
+      toast.loading('Removing photo...');
+
+      // Update form with default image
+      setValue('profileImage', 'https://placehold.co/79x79', { shouldDirty: true });
+      setCurrentImageUrl('https://placehold.co/79x79');
+
+      // Update local storage
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      localStorage.setItem('user', JSON.stringify({
+        ...currentUser,
+        tempImage: 'https://placehold.co/79x79'
+      }));
+
+      toast.dismiss();
+      toast.success('Photo removed successfully');
+    } catch (error) {
+      console.error('Error removing photo:', error);
+      toast.error('Failed to remove photo');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
       if (isPasswordChanged && data.password.length < 8) {
@@ -288,6 +314,14 @@ export default function Setting() {
                 disabled={isLoading}
               >
                 <span className="text-white text-base font-medium">Replace Photo</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleRemovePhoto}
+                className="px-4 py-3 bg-white border border-[#b60000] rounded-lg flex items-center gap-1.5 hover:bg-[#fff0f0] transition-colors"
+                disabled={isLoading || displayImage === 'https://placehold.co/79x79'}
+              >
+                <span className="text-[#b60000] text-base font-medium">Remove</span>
               </button>
             </div>
           </div>

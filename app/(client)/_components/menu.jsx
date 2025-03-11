@@ -66,7 +66,7 @@ export default function Menu() {
 
   return (
     <>
-      <div className="center w-full max-w-[1320px] mx-auto relative z-50">
+      <div className="center w-[92%] max-w-[1320px] mx-auto relative z-50 ">
         <div className="w-full h-20 px-6 mt-6 py-3 bg-white/90 rounded-2xl backdrop-blur-[66px] justify-between items-center inline-flex">
           <div 
             onClick={() => scrollToSection('home')}

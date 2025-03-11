@@ -34,7 +34,7 @@ export default function Header() {
         </div>
 
         <div className="absolute inset-0 w-full max-w-[983px] mx-auto px-4 md:px-6">
-          <div className="w-full max-w-[983px] h-auto md:h-[556px] mt-[100px] md:mt-[140px] flex-col justify-start items-center gap-6 md:gap-8 inline-flex">
+          <div className="w-full max-w-[983px] h-auto md:h-[556px] mt-[160px] md:mt-[140px] flex-col justify-start items-center gap-6 md:gap-8 inline-flex">
             <div className="w-[160px] h-[160px] md:w-[217px] md:h-[217px] relative">
               <div className="w-[70px] h-[70px] md:w-[95px] md:h-[93px] left-[45px] md:left-[60px] top-[45px] md:top-[60px] absolute bg-[#d9d9d9] rounded-full" />
               <Image className="w-full h-full left-0 top-0 absolute animate-[spin_30s_linear_infinite]" src={logo} alt="hero image" />
