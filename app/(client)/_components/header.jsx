@@ -33,29 +33,29 @@ export default function Header() {
           <Menu />
         </div>
 
-        <div className="absolute inset-0 w-[983px] mx-auto">
-          <div className="w-[983px] h-[556px] mt-[140px] flex-col justify-start items-center gap-8 inline-flex">
-            <div className="w-[217px] h-[217px] relative">
-              <div className="w-[95px] h-[93px] left-[60px] top-[60px] absolute bg-[#d9d9d9] rounded-full" />
-              <Image className="w-[217px] h-[217px] left-0 top-0 absolute animate-[spin_30s_linear_infinite]" src={logo} alt="hero image" />
+        <div className="absolute inset-0 w-full max-w-[983px] mx-auto px-4 md:px-6">
+          <div className="w-full max-w-[983px] h-auto md:h-[556px] mt-[100px] md:mt-[140px] flex-col justify-start items-center gap-6 md:gap-8 inline-flex">
+            <div className="w-[160px] h-[160px] md:w-[217px] md:h-[217px] relative">
+              <div className="w-[70px] h-[70px] md:w-[95px] md:h-[93px] left-[45px] md:left-[60px] top-[45px] md:top-[60px] absolute bg-[#d9d9d9] rounded-full" />
+              <Image className="w-full h-full left-0 top-0 absolute animate-[spin_30s_linear_infinite]" src={logo} alt="hero image" />
             </div>
-            <div className="self-stretch h-[307px] flex-col justify-start items-center gap-10 flex">
-              <div className="self-stretch h-[195px] flex-col justify-center items-center gap-5 flex">
-                <div className="self-stretch text-center text-white text-[64px] font-bold   leading-[73.60px]">
+            <div className="self-stretch h-auto md:h-[307px] flex-col justify-start items-center gap-6 md:gap-10 flex">
+              <div className="self-stretch h-auto md:h-[195px] flex-col justify-center items-center gap-4 md:gap-5 flex">
+                <div className="self-stretch text-center text-white text-3xl sm:text-5xl md:text-[64px] font-bold leading-tight md:leading-[73.60px] px-4">
                   Game-Changing Training.
                   <br />
                   Limitless Potential.
                 </div>
-                <div className="w-[869px] text-center text-white text-lg font-normal   leading-[27px]">
+                <div className="w-full max-w-[869px] text-center text-white text-base md:text-lg font-normal leading-normal md:leading-[27px] px-4">
                   we help athletes reach their goals through proven results,
                   powered by hard work and discipline."
                 </div>
               </div>
               <button 
                 onClick={handleSmoothScroll}
-                className="h-[72px] px-[29px] py-[19px] bg-[#b60000] rounded-lg justify-center items-center gap-2.5 inline-flex hover:bg-[#990000] transition-colors duration-300"
+                className="h-[60px] md:h-[72px] px-6 md:px-[29px] py-4 md:py-[19px] bg-[#b60000] rounded-lg justify-center items-center gap-2.5 inline-flex hover:bg-[#990000] transition-colors duration-300"
               >
-                <div className="text-white text-lg font-medium   leading-[27px]">
+                <div className="text-white text-base md:text-lg font-medium leading-normal md:leading-[27px]">
                   Book a session
                 </div>
               </button>

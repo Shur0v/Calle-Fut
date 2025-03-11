@@ -65,94 +65,108 @@ export default function Footer() {
 
   return (
     <div className="w-full flex flex-col justify-start items-center bg-[#520000]">
+      {/* ================================ */}
       {/* Main Footer Content */}
-      <div className="w-full max-w-[1920px] px-4 md:px-8 lg:px-[300px] pt-20 pb-[50px] flex flex-col md:flex-row justify-center items-start gap-8 md:gap-[88px]">
-        {/* Logo and Description */}
-        <div className="w-full md:w-[538px] flex flex-col justify-start items-start gap-5">
-          <a 
-            href="#home" 
-            onClick={(e) => handleSmoothScroll(e, '#home')}
-            className="w-[65.30px] h-16 relative"
-          >
-            <Image src={logo} alt="Logo" width={64} height={64} className="w-16 h-16" />
-          </a>
-          <div className="text-[#d2d2d5] text-base font-normal leading-normal">
-            At our Academy, we believe every player has unique talents, and no athlete is ever •not good enough. We're committed to providing a supportive and encouraging environment where each player
-            can thrive and become the best version of themselves.
-          </div>
-        </div>
-
-        {/* Links Section */}
-        <div className="w-full md:w-auto flex flex-wrap justify-start items-start gap-10">
-          {/* Quick Links */}
-          <div className="w-[150px] flex flex-col justify-start items-start gap-6">
-            <div className="self-stretch flex flex-col justify-start items-start gap-3">
-              <div className="text-white text-2xl font-semibold leading-normal">Quick Links</div>
-              <div className="w-[115px] h-[0px] border border-[#d2d2d5]" />
-            </div>
-            <div className="self-stretch flex flex-col justify-start items-start gap-4">
-              {quickLinks.map((link, index) => (
-                <a
-                  key={index}
-                  href={link.link}
-                  onClick={(e) => handleSmoothScroll(e, link.link)}
-                  className="text-[#d2d2d5] text-base font-medium leading-none hover:text-white transition-colors cursor-pointer"
-                >
-                  {link.title}
-                </a>
-              ))}
+      <div className="w-full max-w-[1920px] px-4 md:px-8 lg:px-[300px] pt-20 pb-[50px]">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Logo and Description - 33% */}
+          <div className="w-full lg:w-1/3">
+            <div className="flex flex-col gap-5">
+              <a 
+                href="#home" 
+                onClick={(e) => handleSmoothScroll(e, '#home')}
+                className="w-[65.30px] h-16 relative"
+              >
+                <Image src={logo} alt="Logo" width={64} height={64} className="w-16 h-16" />
+              </a>
+              <div className="text-[#d2d2d5] text-base font-normal leading-normal">
+                At our Academy, we believe every player has unique talents, and no athlete is ever •not good enough. We're committed to providing a supportive and encouraging environment where each player
+                can thrive and become the best version of themselves.
+              </div>
             </div>
           </div>
 
-          {/* Follow Us */}
-          <div className="w-[145px] flex flex-col justify-start items-start gap-6">
-            <div className="self-stretch flex flex-col justify-start items-start gap-3">
-              <div className="text-white text-2xl font-semibold leading-normal">Follow Us</div>
-              <div className="w-[115px] h-[0px] border border-[#d2d2d5]" />
-            </div>
-            <div className="flex flex-col justify-start items-start gap-4">
-              {socialMedia.map((social, index) => (
-                <a 
-                  key={index} 
-                  href={social.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex justify-start items-center gap-2 text-[#d2d2d5] hover:text-white transition-colors"
-                >
-                  {social.icon}
-                  <div className="text-base font-medium leading-none">
-                    {social.name}
+          {/* Right side content - 66% */}
+          <div className="w-full lg:w-2/3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* Quick Links */}
+              <div>
+                <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-3">
+                    <div className="text-white text-2xl font-semibold leading-normal">Quick Links</div>
+                    <div className="w-[115px] h-[0px] border border-[#d2d2d5]" />
                   </div>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Contact Info - Updated width and removed w-full */}
-          <div className="w-[335px] flex flex-col justify-start items-start gap-6">
-            <div className="flex flex-col justify-start items-start gap-3">
-              <div className="text-white text-2xl font-semibold leading-normal">Contact Info</div>
-              <div className="w-[115px] h-[0px] border border-[#d2d2d5]" />
-            </div>
-            <div className="flex flex-col justify-start items-start gap-3">
-              {contactInfo.map((info, index) => (
-                <a
-                  key={index}
-                  href={info.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${info.type === 'address' ? 'min-h-[42px]' : 'h-5'} flex justify-start items-center gap-3 text-[#d2d2d5] hover:text-white transition-colors`}
-                >
-                  {info.icon}
-                  <div className={`text-base font-medium ${info.type === 'address' ? 'leading-tight' : 'leading-none'}`}>
-                    {info.value}
+                  <div className="flex flex-col gap-4">
+                    {quickLinks.map((link, index) => (
+                      <a
+                        key={index}
+                        href={link.link}
+                        onClick={(e) => handleSmoothScroll(e, link.link)}
+                        className="text-[#d2d2d5] text-base font-medium leading-none hover:text-white transition-colors cursor-pointer"
+                      >
+                        {link.title}
+                      </a>
+                    ))}
                   </div>
-                </a>
-              ))}
+                </div>
+              </div>
+
+              {/* Follow Us */}
+              <div>
+                <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-3">
+                    <div className="text-white text-2xl font-semibold leading-normal">Follow Us</div>
+                    <div className="w-[115px] h-[0px] border border-[#d2d2d5]" />
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    {socialMedia.map((social, index) => (
+                      <a 
+                        key={index} 
+                        href={social.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-[#d2d2d5] hover:text-white transition-colors"
+                      >
+                        {social.icon}
+                        <div className="text-base font-medium leading-none">
+                          {social.name}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div>
+                <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-3">
+                    <div className="text-white text-2xl font-semibold leading-normal">Contact Info</div>
+                    <div className="w-[115px] h-[0px] border border-[#d2d2d5]" />
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {contactInfo.map((info, index) => (
+                      <a
+                        key={index}
+                        href={info.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`${info.type === 'address' ? 'min-h-[42px]' : 'h-5'} flex items-center gap-3 text-[#d2d2d5] hover:text-white transition-colors`}
+                      >
+                        {info.icon}
+                        <div className={`text-base font-medium ${info.type === 'address' ? 'leading-tight' : 'leading-none'}`}>
+                          {info.value}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      {/* ================================ */}
 
       {/* Bottom Bar */}
       <div className="w-full border-t border-white/50">

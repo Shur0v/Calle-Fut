@@ -71,87 +71,85 @@ export default function Reviews() {
     setCurrentSlide((prev) => (prev + 1) % reviewsData.length);
   };
 
-  // Improved progress bar calculations
-  const progressBarWidth = 605.79;
-  const totalSlides = reviewsData.length - 1; // Subtract 1 for zero-based index
-  const indicatorWidth = 127.35; // Fixed width as per original design
-  const maxOffset = progressBarWidth - indicatorWidth;
-  const currentPosition = (currentSlide / totalSlides) * maxOffset;
-
   return (
     <>
-      <div className="container mx-auto max-w-[1324px] py-[100px]">
-        <h1 className="text-center text-5xl font-bold mb-5 w-[1212px] mx-auto mb-10">
-          {" "}
+      <div className="container mx-auto px-4 max-w-[1324px] py-[50px] lg:py-[100px]">
+        <h1 className="text-center text-3xl lg:text-5xl font-bold w-full lg:w-[1212px] mx-auto mb-6 lg:mb-10">
           We let our work speak for itself, see what our past players/parents
           have to say about us.
         </h1>
 
-        <div className="h-[344px] flex-col justify-start items-center gap-6 inline-flex">
-          <div className="self-stretch h-72 p-8 bg-[#ffefef] rounded-tr-lg rounded-br-lg flex-col justify-center items-center gap-3 flex">
-            <div className="self-stretch h-56 flex-col justify-center items-center gap-5 flex">
-              <div className="h-[60px] flex-col justify-center items-start gap-3 flex">
-                <div className="text-right text-[#070707] text-[32px] font-semibold   leading-loose">
+        <div className="min-h-[344px] flex-col justify-start items-center gap-4 lg:gap-6 inline-flex w-full">
+          <div className="self-stretch p-4 lg:p-8 bg-[#ffefef] rounded-tr-lg rounded-br-lg flex-col justify-center items-center gap-3 flex">
+            <div className="self-stretch flex-col justify-center items-center gap-4 lg:gap-5 flex">
+              <div className="flex-col justify-center items-start gap-2 lg:gap-3 flex">
+                <div className="text-right text-[#070707] text-2xl lg:text-[32px] font-semibold leading-loose">
                   {reviewsData[currentSlide].name}
                 </div>
-                <div className="text-[#4a4c56] text-base font-normal   leading-none">
+                <div className="text-[#4a4c56] text-sm lg:text-base font-normal leading-none">
                   {reviewsData[currentSlide].role}
                 </div>
               </div>
-              <div className="self-stretch text-center text-[#4a4c56] text-2xl font-normal   leading-9">
+              <div className="self-stretch text-center text-[#4a4c56] text-lg lg:text-2xl font-normal leading-7 lg:leading-9">
                 {reviewsData[currentSlide].review}
               </div>
             </div>
           </div>
-          <div className="w-[718px] justify-start items-center gap-6 inline-flex">
+          
+          <div className="w-full max-w-[718px] justify-start items-center gap-4 lg:gap-6 inline-flex px-4">
             <button 
               onClick={handlePrevClick} 
-              className="relative cursor-pointer transition-transform hover:scale-105"
+              className="relative cursor-pointer outline-none"
             >
               <svg
-                width="34"
-                height="33"
+                width="30"
+                height="30"
                 viewBox="0 0 34 33"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                className="w-[30px] h-[30px] lg:w-[34px] lg:h-[33px]"
+                style={{filter: "none"}}
               >
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
                   d="M17.1724 2.16602C9.08037 2.16602 2.52051 8.58327 2.52051 16.4994C2.52051 24.4155 9.08037 30.8327 17.1724 30.8327C25.2644 30.8327 31.8242 24.4155 31.8242 16.4994C31.8242 8.58327 25.2644 2.16602 17.1724 2.16602ZM18.834 8.99976L13.3821 15.6664L12.701 16.4994L13.3821 17.3323L18.834 23.999L20.9626 22.3331L16.1918 16.4994L20.9625 10.6656L18.834 8.99976Z"
                   fill="#FFDCDC"
-                  className="hover:fill-[#b60000] transition-colors"
+                  style={{strokeWidth: "0"}}
                 />
               </svg>
             </button>
-            <div className="w-[606px] h-2.5 relative">
-              <div className="w-[605.79px] h-[10.10px] left-0 top-0 absolute bg-[#ffefef] rounded-[32px]" />
+            
+            <div className="flex-1 h-2.5 relative">
+              <div className="w-full h-[10px] left-0 top-0 absolute bg-[#ffefef] rounded-[32px]" />
               <div 
-                className="h-[10.06px] absolute bg-[#b60000] rounded-[26px] transition-all duration-300 ease-in-out"
+                className="h-[10px] absolute bg-[#b60000] rounded-[26px] transition-all duration-300 ease-in-out"
                 style={{
-                  width: `${indicatorWidth}px`,
-                  left: `${currentPosition}px`,
-                  top: "0.04px"
+                  width: `${100 / reviewsData.length}%`,
+                  left: `${(currentSlide / (reviewsData.length - 1)) * (100 - (100 / reviewsData.length))}%`
                 }}
               />
             </div>
+            
             <button 
               onClick={handleNextClick} 
-              className="relative cursor-pointer transition-transform hover:scale-105"
+              className="relative cursor-pointer outline-none"
             >
               <svg
-                width="34"
-                height="33"
+                width="30"
+                height="30"
                 viewBox="0 0 34 33"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
+                className="w-[30px] h-[30px] lg:w-[34px] lg:h-[33px]"
+                style={{filter: "none"}}
               >
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
                   d="M16.8843 2.16602C24.9763 2.16602 31.5361 8.58327 31.5361 16.4994C31.5361 24.4155 24.9763 30.8327 16.8843 30.8327C8.79223 30.8327 2.23243 24.4155 2.23243 16.4994C2.23243 8.58327 8.79223 2.16602 16.8843 2.16602ZM15.2227 8.99976L20.6745 15.6664L21.3556 16.4994L20.6745 17.3323L15.2227 23.999L13.094 22.3331L17.8648 16.4994L13.0942 10.6656L15.2227 8.99976Z"
                   fill="#B60000"
-                  className="hover:fill-[#990000] transition-colors"
+                  style={{strokeWidth: "0"}}
                 />
               </svg>
             </button>

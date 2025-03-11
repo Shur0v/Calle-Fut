@@ -14,6 +14,7 @@ export default function Menu() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Check authentication status on mount and when localStorage changes
   useEffect(() => {
@@ -65,8 +66,8 @@ export default function Menu() {
 
   return (
     <>
-      <div className="center w-[1320px] mx-auto relative z-50">
-        <div className="w-[1320px] h-20 px-6 mt-6 py-3 bg-white/90 rounded-2xl backdrop-blur-[66px] justify-between items-center inline-flex">
+      <div className="center w-full max-w-[1320px] mx-auto relative z-50">
+        <div className="w-full h-20 px-6 mt-6 py-3 bg-white/90 rounded-2xl backdrop-blur-[66px] justify-between items-center inline-flex">
           <div 
             onClick={() => scrollToSection('home')}
             className="cursor-pointer"
@@ -74,7 +75,18 @@ export default function Menu() {
             <Image className="w-[55.81px] h-14" alt="logo" src={logo} />
           </div>
           
-          <div className="justify-start items-center gap-8 flex">
+          {/* Hamburger Menu Button - Only visible on mobile */}
+          <button 
+            className="lg:hidden flex flex-col justify-center items-center gap-1.5"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <span className={`block w-6 h-0.5 bg-black transition-all duration-300 ${isMenuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+            <span className={`block w-6 h-0.5 bg-black transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
+            <span className={`block w-6 h-0.5 bg-black transition-all duration-300 ${isMenuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+          </button>
+          
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex justify-start items-center gap-8">
             {menuItems.map((item) => (
               <div 
                 key={item.path}
@@ -89,7 +101,8 @@ export default function Menu() {
             ))}
           </div>
 
-          <div className="justify-start items-center gap-5 flex">
+          {/* Desktop Auth Buttons */}
+          <div className="hidden lg:flex justify-start items-center gap-5">
             {isAuthenticated ? (
               // Show logout button when authenticated
               <div 
@@ -121,6 +134,66 @@ export default function Menu() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        <div className={`lg:hidden fixed inset-0 bg-white/95 z-50 transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="p-6 space-y-8">
+            {/* Mobile Menu Items */}
+            <div className="space-y-6">
+              {menuItems.map((item) => (
+                <div 
+                  key={item.path}
+                  onClick={() => {
+                    scrollToSection(item.path);
+                    setIsMenuOpen(false);
+                  }}
+                  className="text-black text-xl font-normal hover:text-[#b60000] transition-colors duration-300"
+                >
+                  {item.name}
+                </div>
+              ))}
+            </div>
+            
+            {/* Mobile Auth Buttons */}
+            <div className="space-y-4">
+              {isAuthenticated ? (
+                <div 
+                  onClick={handleLogout}
+                  className="w-full px-[18px] py-3 rounded-lg border border-[#b60000] justify-center items-center gap-2.5 flex cursor-pointer hover:bg-[#ffefef] transition-colors duration-300"
+                >
+                  <div className="text-[#b60000] text-lg font-medium leading-[27px]">
+                    Logout
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div 
+                    onClick={() => {
+                      setShowLoginModal(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-[18px] py-3 rounded-lg border border-[#b60000] justify-center items-center gap-2.5 flex cursor-pointer hover:bg-[#ffefef] transition-colors duration-300"
+                  >
+                    <div className="text-[#b60000] text-lg font-medium leading-[27px]">
+                      Log In
+                    </div>
+                  </div>
+                  <div 
+                    onClick={() => {
+                      setShowRegisterModal(true);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-[18px] py-3 bg-[#b60000] rounded-lg justify-center items-center gap-2.5 flex cursor-pointer hover:bg-[#990000] transition-colors duration-300"
+                  >
+                    <div className="text-white text-lg font-medium leading-[27px]">
+                      Sign Up
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

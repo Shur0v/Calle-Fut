@@ -131,28 +131,28 @@ export default function BookSession() {
     <div className="bg-[#F8F8F8] relative">
       {/* Top Background Image */}
       <div 
-        className="absolute top-0 left-0 w-[234px] h-[234px] bg-[url('/client/contacttop.png')] bg-no-repeat bg-contain"
+        className="absolute top-0 left-0 w-[120px] h-[120px] md:w-[234px] md:h-[234px] bg-[url('/client/contacttop.png')] bg-no-repeat bg-contain"
         style={{ backgroundPosition: "top left" }}
       />
 
       {/* Bottom Background Image */}
       <div 
-        className="absolute bottom-0 right-0 w-[234px] h-[234px] bg-[url('/client/contactbottom.png')] bg-no-repeat bg-contain"
+        className="absolute bottom-0 right-0 w-[120px] h-[120px] md:w-[234px] md:h-[234px] bg-[url('/client/contactbottom.png')] bg-no-repeat bg-contain"
         style={{ backgroundPosition: "bottom right" }}
       />
 
-      <div className="container mx-auto max-w-[1324px] py-[100px] relative">
-        <h1 className="text-center text-5xl font-bold mb-5 w-[870px] mx-auto">
+      <div className="container mx-auto max-w-[1324px] px-4 py-[50px] md:py-[100px] relative">
+        <h1 className="text-center text-3xl md:text-5xl font-bold mb-5 w-full md:w-[870px] mx-auto px-4">
           Ready to take your game to the next level?
         </h1>
-        <p className="text-center text-lg font-normal text-[#4A4C56] w-[869px] mx-auto mb-14">
+        <p className="text-center text-base md:text-lg font-normal text-[#4A4C56] w-full md:w-[869px] mx-auto mb-8 md:mb-14 px-4">
           Book your 1st session FREE today & see the results yourself!
         </p>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center px-4">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="w-[741px] h-auto p-10 bg-white rounded-xl shadow-[0px_2px_42px_0px_rgba(0,0,0,0.05)] flex-col justify-start items-center gap-8 inline-flex relative z-10"
+            className="w-full max-w-[741px] h-auto p-5 md:p-10 bg-white rounded-xl shadow-[0px_2px_42px_0px_rgba(0,0,0,0.05)] flex-col justify-start items-center gap-8 inline-flex relative z-10"
           >
             <div className="self-stretch h-auto flex-col justify-start items-start gap-[18px] flex">
               {/* Child's Name */}
