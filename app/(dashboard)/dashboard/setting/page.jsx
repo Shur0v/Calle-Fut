@@ -59,6 +59,7 @@ export default function Setting() {
   const [userData, setUserData] = useState(null)
   const [isDataLoaded, setIsDataLoaded] = useState(false)
   const [currentImageUrl, setCurrentImageUrl] = useState('');
+  const [defaultDateTime, setDefaultDateTime] = useState('');
 
   const {
     register,
@@ -73,7 +74,9 @@ export default function Setting() {
       name: '',
       email: '',
       password: '••••••••', // Default password (masked)
-      profileImage: ''
+      profileImage: '',
+      age: "5-7",
+      sessionDateTime: '' // Start with empty string
     }
   })
 
@@ -115,10 +118,8 @@ export default function Setting() {
       const initialData = {
         name: userData?.name || localUser?.name || 'Coach Marco',
         email: userData?.email || localUser?.email || 'marco@uta.com',
-        password: '••••••••',
-        profileImage: userData?.avatar_url || 
-                     (userData?.avatar ? `${process.env.NEXT_PUBLIC_API_URL}/public/storage/avatar/${userData.avatar}` : null) ||
-                     'https://placehold.co/79x79'
+        password: '',
+        profileImage: `${process.env.NEXT_PUBLIC_IMAGE_ENDPOINT}/public/storage/avatar/${userData.avatar}` || 'https://placehold.co/79x79'
       };
       
       setOriginalData(initialData);
@@ -131,10 +132,6 @@ export default function Setting() {
     const newPassword = e.target.value
     if (newPassword !== '••••••••') {
       setIsPasswordChanged(true)
-      // Check password length and show toast if less than 8 characters
-      if (newPassword.length < 8) {
-        toast.error('Password must be at least 8 characters long')
-      }
     } else {
       setIsPasswordChanged(false)
     }
@@ -190,24 +187,29 @@ export default function Setting() {
       setIsLoading(true);
       toast.loading('Removing photo...');
 
-      // Update form with default image
-      setValue('profileImage', 'https://placehold.co/79x79', { shouldDirty: true });
+      // Comment out the API call
+      // const response = await SettingApis.removeProfilePhoto();
+      
+      // Instead, just update local state and storage
       setCurrentImageUrl('https://placehold.co/79x79');
-
+      setValue('profileImage', 'https://placehold.co/79x79', { shouldDirty: true });
+      
       // Update local storage
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-      localStorage.setItem('user', JSON.stringify({
-        ...currentUser,
-        tempImage: 'https://placehold.co/79x79'
-      }));
-
-      toast.dismiss();
+      currentUser.avatar_url = 'https://placehold.co/79x79';
+      delete currentUser.tempImage;
+      localStorage.setItem('user', JSON.stringify(currentUser));
+      
+      // Trigger header update
+      window.dispatchEvent(new CustomEvent('profileUpdated'));
+      
       toast.success('Photo removed successfully');
     } catch (error) {
       console.error('Error removing photo:', error);
       toast.error('Failed to remove photo');
     } finally {
       setIsLoading(false);
+      toast.dismiss();
     }
   };
 
@@ -230,16 +232,17 @@ export default function Setting() {
             setCurrentImageUrl(response.user.avatar_url);
         }
 
-        // Update form with fresh data
+        // Update form with fresh data and clear password
         const newData = {
             ...originalData,
             name: data.name,
             email: data.email,
-            password: '••••••••',
+            password: '', // Clear the password field
             profileImage: response.user?.avatar_url || originalData.profileImage
         };
         setOriginalData(newData);
         reset(newData);
+        setIsPasswordChanged(false); // Reset password changed state
 
         // Trigger header update
         window.dispatchEvent(new CustomEvent('profileUpdated'));
@@ -268,6 +271,30 @@ export default function Setting() {
   if (!isClient || !isDataLoaded) {
     return <div className="w-full text-center py-8">Loading user data...</div>;
   }
+
+  useEffect(() => {
+    // Set the current datetime only after component mounts
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    setDefaultDateTime(`${year}-${month}-${day}T${hours}:${minutes}`);
+  }, []);
+
+  const validateDateTime = (value) => {
+    const selectedDate = new Date(value);
+    const now = new Date();
+    const selectedDateTime = selectedDate.getTime();
+    const currentDateTime = now.getTime();
+    const diff = selectedDateTime - currentDateTime;
+    const oneHour = 1000 * 60 * 60;
+    if (diff < 0 || diff > oneHour) {
+      return "Session date and time must be within one hour from now";
+    }
+    return true;
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full flex flex-col gap-6">
@@ -315,14 +342,16 @@ export default function Setting() {
               >
                 <span className="text-white text-base font-medium">Replace Photo</span>
               </button>
-              <button
-                type="button"
-                onClick={handleRemovePhoto}
-                className="px-4 py-3 bg-white border border-[#b60000] rounded-lg flex items-center gap-1.5 hover:bg-[#fff0f0] transition-colors"
-                disabled={isLoading || displayImage === 'https://placehold.co/79x79'}
-              >
-                <span className="text-[#b60000] text-base font-medium">Remove</span>
-              </button>
+              {displayImage !== 'https://placehold.co/79x79' && (
+                <button 
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  className="px-4 py-3 bg-white border border-[#b60000] rounded-lg flex items-center gap-1.5 hover:bg-[#fff0f0] transition-colors"
+                  disabled={isLoading}
+                >
+                  <span className="text-[#b60000] text-base font-medium">Remove Photo</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -404,6 +433,49 @@ export default function Setting() {
               </div>
               {errors.password && (
                 <span className="text-red-500 text-xs">{errors.password.message}</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <label className="text-[#4a4c56] text-base font-normal">Age</label>
+              <input
+                type="text"
+                {...register("age", {
+                  required: "Age is required",
+                  pattern: {
+                    value: /^[0-9]+-[0-9]+$/,
+                    message: "Invalid age format. Use the format '5-7'"
+                  }
+                })}
+                className={`w-full p-4 rounded-lg border ${
+                  errors.age ? 'border-red-500' : 'border-[#e9e9ea]'
+                } text-[#777980] text-sm font-normal leading-[14px]`}
+              />
+              {errors.age && (
+                <span className="text-red-500 text-xs">{errors.age.message}</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <label className="text-[#4a4c56] text-base font-normal">Session Date and Time</label>
+              <input
+                type="datetime-local"
+                {...register("sessionDateTime", {
+                  required: "Session date and time is required",
+                  validate: validateDateTime
+                })}
+                value={defaultDateTime}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setDefaultDateTime(newValue);
+                  register("sessionDateTime").onChange(e);
+                }}
+                className={`w-full p-4 rounded-lg border ${
+                  errors.sessionDateTime ? 'border-red-500' : 'border-[#e9e9ea]'
+                } text-[#777980] text-sm font-normal leading-[14px]`}
+              />
+              {errors.sessionDateTime && (
+                <span className="text-red-500 text-xs">{errors.sessionDateTime.message}</span>
               )}
             </div>
           </div>

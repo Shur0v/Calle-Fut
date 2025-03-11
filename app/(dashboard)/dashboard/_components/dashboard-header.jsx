@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
 import search from '@/public/dashboard/icon/search.svg';
 import avatar from '@/public/dashboard/icon/avatar.png';
-import { getUserData } from '@/app/api/settingApis';
 import Sidebar from './sidebar';
+import { getUserData } from '@/app/api/settingApis';
 
 export default function DashboardHeader() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -18,14 +18,9 @@ export default function DashboardHeader() {
     try {
       const apiData = await getUserData();
       if (apiData) {
-        // Get the correct image URL
-        const imageUrl = apiData.avatar_url || 
-                        (apiData.avatar ? `${process.env.NEXT_PUBLIC_API_URL}/public/storage/avatar/${apiData.avatar}` : null) ||
-                        'https://placehold.co/40x40';
-
         const updatedData = {
           name: apiData.name || 'Coach Marco',
-          image: imageUrl
+          image: apiData.avatar_url || 'https://placehold.co/40x40'
         };
         setUserData(updatedData);
       }
@@ -34,7 +29,7 @@ export default function DashboardHeader() {
       const localUser = JSON.parse(localStorage.getItem('user') || '{}');
       setUserData({
         name: localUser.name || 'Coach Marco',
-        image: localUser.image || 'https://placehold.co/40x40'
+        image: localUser.avatar_url || 'https://placehold.co/40x40'
       });
     }
   };
@@ -43,15 +38,21 @@ export default function DashboardHeader() {
     // Fetch data when component mounts
     fetchAndUpdateUserData();
 
-    // Listen for profile updates
+    // Listen for both profile updates and login events
     const handleProfileUpdate = () => {
       fetchAndUpdateUserData();
     };
 
+    const handleLogin = () => {
+      fetchAndUpdateUserData();
+    };
+
     window.addEventListener('profileUpdated', handleProfileUpdate);
+    window.addEventListener('userLoggedIn', handleLogin); // Add new event listener
 
     return () => {
       window.removeEventListener('profileUpdated', handleProfileUpdate);
+      window.removeEventListener('userLoggedIn', handleLogin);
     };
   }, []);
 
@@ -96,7 +97,7 @@ export default function DashboardHeader() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="w-[301px] h-[46px] mr-8 pl-3.5 pr-5 py-[11px] bg-white rounded-xl border border-[#e7e7e7] justify-start items-center gap-2.5 flex">
+          <div className="hidden md:flex w-[301px] h-[46px] mr-8 pl-3.5 pr-5 py-[11px] bg-white rounded-xl border border-[#e7e7e7] justify-start items-center gap-2.5">
             <div data-svg-wrapper className="relative">
               <Image src={search} alt="search" />
             </div>

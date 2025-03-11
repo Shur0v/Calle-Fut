@@ -101,8 +101,22 @@ const SettingApis = {
                 message: error.response?.data?.message || error.message || 'Failed to update profile'
             };
         }
-    }
+    },
 
+    // removeProfilePhoto: async () => {
+    //     try {
+    //         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/remove-avatar`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
+    //             },
+    //         });
+    //         return await response.json();
+    //     } catch (error) {
+    //         console.error('Error removing profile photo:', error);
+    //         throw error;
+    //     }
+    // }
 };
 
 

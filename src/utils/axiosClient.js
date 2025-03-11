@@ -1,6 +1,12 @@
 import axios from "axios";
 import Cookies from 'js-cookie';
 
+// Get base URL without /api for image URLs
+const getBaseUrl = () => {
+  const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://192.168.30.229:4000/api';
+  return apiEndpoint.replace('/api', '');
+};
+
 const axiosClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_ENDPOINT || 'http://192.168.30.229:4000/api',
   headers: {
@@ -41,12 +47,12 @@ axiosClient.interceptors.request.use(
 // Add a response interceptor
 axiosClient.interceptors.response.use(
   (response) => {
-    // Log the response for debugging
     console.log('Response:', {
       status: response.status,
       data: response.data,
       headers: response.headers
     });
+
     return response;
   },
   (error) => {
@@ -76,4 +82,5 @@ axiosClient.interceptors.response.use(
   }
 );
 
+export { getBaseUrl };
 export default axiosClient;
