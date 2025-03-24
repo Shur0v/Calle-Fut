@@ -47,8 +47,8 @@ export default function Header() {
                   Limitless Potential.
                 </div>
                 <div className="w-full max-w-[869px] text-center text-white text-base md:text-lg font-normal leading-normal md:leading-[27px] px-4">
-                  we help athletes reach their goals through proven results,
-                  powered by hard work and discipline."
+                  We help athletes reach their goals through proven results,
+                  powered by hard work and discipline.
                 </div>
               </div>
               <button 
