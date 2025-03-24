@@ -143,7 +143,8 @@ export default function BookSession() {
 
       <div className="container mx-auto max-w-[1324px] px-4 py-[50px] md:py-[100px] relative">
         <h1 className="text-center text-3xl md:text-5xl font-bold mb-5 w-full md:w-[870px] mx-auto px-4">
-          Ready to take your game to the next level?
+        Prior to making a request for a training session, please make an
+        account first. Then you can request your session.
         </h1>
         <p className="text-center text-base md:text-lg font-normal text-[#4A4C56] w-full md:w-[869px] mx-auto mb-8 md:mb-14 px-4">
           Book your 1st session FREE today & see the results yourself!

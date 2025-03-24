@@ -11,7 +11,7 @@ const coachesData = [
     bio: `Coach Marco was born in Mendoza, Argentina and moved to Fort Worth Texas when he was 2.
 Marco went to LD Bell highschool where graduated & won a district championship while
 making first-team GA all-district tearn. He also played for Fc Dallas. where he played in major youth such as national league, state cups, Dallas cup, espn cup, and even
-regional tournaments nationwide...`
+regional tournaments nationwide.`
   },
   {
     name: "Coach Cam",
@@ -19,7 +19,7 @@ regional tournaments nationwide...`
     bio: `Coach Cam was born and raised in San Antonio, Texas. He honed his skills playing with the
 Texans and SA City ECNL while having a standout career at Harlan High School. In 2021, he
 captained the team to a district championship, earning individual accolades as First Team All-
-State and All-District, and was also named a Southeast All-American. His success continued...`
+State and All-District, and was also named a Southeast All-American. His success continued.`
   }
 ];
 
@@ -43,7 +43,7 @@ export default function OurCoaches() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-7 justify-center">
           {coachesData.map((coach, index) => (
-            <div key={index} className="w-full md:w-[648px] h-[400px] md:h-[593px] relative">
+            <div key={index} className="w-full md:w-[648px] h-[400px] md:h-[593px] relative group">
               <div className="w-full h-full absolute bg-gradient-to-b from-black to-black rounded-lg" />
               <Image
                 src={coach.image}
@@ -53,7 +53,9 @@ export default function OurCoaches() {
                 className="object-cover rounded-lg"
                 priority={index === 0}
               />
-              <div className="absolute left-4 right-4 md:left-[24px] bottom-8 md:top-[428px] md:w-[600px] justify-start items-center gap-4 inline-flex z-20">
+              
+              {/* Default bio view that shows on non-hover state */}
+              <div className="absolute left-4 right-4 md:left-[24px] bottom-8 md:top-[428px] md:w-[600px] justify-start items-center gap-4 inline-flex z-20 group-hover:opacity-0 transition-opacity duration-300">
                 <div data-svg-wrapper>
                   <svg 
                     width="4" 
@@ -75,9 +77,17 @@ export default function OurCoaches() {
                   <div className="self-stretch text-white text-lg md:text-xl font-semibold leading-tight">
                     {coach.name}
                   </div>
-                  <div className="self-stretch text-white text-xs md:text-sm font-normal leading-[21px] line-clamp-4 md:line-clamp-none">
+                  <div className="self-stretch text-white text-xs md:text-sm font-normal leading-[21px] line-clamp-4 md:line-clamp-4">
                     {coach.bio}
                   </div>
+                </div>
+              </div>
+              
+              {/* Full bio overlay on hover */}
+              <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg z-30 flex items-center justify-center overflow-auto p-6">
+                <div className="text-white max-w-[90%]">
+                  <h3 className="text-xl font-semibold mb-4">{coach.name}</h3>
+                  <p className="text-sm leading-relaxed">{coach.bio}</p>
                 </div>
               </div>
             </div>
